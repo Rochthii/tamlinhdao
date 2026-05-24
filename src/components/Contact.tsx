@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { QrCode, MessageSquare, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { MessageSquare, ArrowRight, CheckCircle2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -210,18 +210,6 @@ export default function Contact() {
                   <p className="text-[10px] text-white/40 mt-1 uppercase tracking-wider">Góc nhìn & Chia sẻ</p>
                 </div>
               </a>
-            </div>
-
-            {/* Payment QR */}
-            <div className="dao-panel p-6 rounded-sm text-center">
-              <h4 className="text-xs font-serif text-saffron-400 uppercase tracking-widest mb-4">Mã Phát Tâm</h4>
-              <p className="text-[11px] text-white/40 mb-6 leading-relaxed">
-                Tùy hỷ phát tâm hoặc thanh toán sau bước chốt lịch hỗ trợ.
-              </p>
-              <div className="w-32 h-32 bg-dao-800/80 border border-saffron-400/20 mx-auto flex flex-col items-center justify-center text-white/20 hover:border-saffron-400/50 transition-all rounded-sm">
-                <QrCode className="w-8 h-8 mb-2 text-saffron-400/60" />
-                <span className="text-[9px] uppercase tracking-widest">Quét Mã QR</span>
-              </div>
             </div>
           </motion.div>
         </div>

@@ -265,12 +265,33 @@ FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
 -- INSERT INTO article_stats (article_id, likes, bookmarks, views) VALUES ('00000000-0000-0000-0000-000000000000', 5, 2, 120);
 -- INSERT INTO comments (article_id, name, content, mood) VALUES ('00000000-0000-0000-0000-000000000000', 'Bạn Hữu', 'Bài viết rất hay', 'Tri ân');
 
+-- Categories table (groups / sections)
+CREATE TABLE IF NOT EXISTS categories (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  slug text UNIQUE,
+  description text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
+
+-- Many-to-many association between articles and categories (an article can have multiple categories/tags)
+CREATE TABLE IF NOT EXISTS article_categories (
+  article_id uuid NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+  category_id uuid NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+  PRIMARY KEY (article_id, category_id)
+);
+CREATE INDEX IF NOT EXISTS idx_article_categories_article ON article_categories(article_id);
+CREATE INDEX IF NOT EXISTS idx_article_categories_category ON article_categories(category_id);
+
 -- Sample categories seed
 INSERT INTO categories (name, slug, description) VALUES
 ('Triết Lý Đạo Giáo','triet-ly-dao-giao','Tư liệu liên quan đến Đạo Giáo và triết lý Vô Vi'),
 ('Phật Pháp','phat-phap','Tài liệu về Phật Pháp, Nhân Quả và tu tập'),
 ('Thiền','thien-dinh','Bài viết hướng dẫn thiền và thực hành tĩnh tâm'),
-('Cổ Học','co-hoc','Văn hoá và học thuật cổ phương Đông');
+('Cổ Học','co-hoc','Văn hoá và học thuật cổ phương Đông')
+ON CONFLICT (name) DO NOTHING;
 
 -- Recommended Row-Level Security (RLS) policies
 -- NOTE: run these in Supabase SQL editor. Adjust roles/conditions per your auth model.
@@ -301,22 +322,3 @@ INSERT INTO categories (name, slug, description) VALUES
 
 -- After applying RLS, verify behavior and use server-side service role for writes that must be trusted (e.g., publish, delete, stats increment).
 
--- Categories table (groups / sections)
-CREATE TABLE IF NOT EXISTS categories (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL UNIQUE,
-  slug text UNIQUE,
-  description text,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
-
--- Many-to-many association between articles and categories (an article can have multiple categories/tags)
-CREATE TABLE IF NOT EXISTS article_categories (
-  article_id uuid NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
-  category_id uuid NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
-  PRIMARY KEY (article_id, category_id)
-);
-CREATE INDEX IF NOT EXISTS idx_article_categories_article ON article_categories(article_id);
-CREATE INDEX IF NOT EXISTS idx_article_categories_category ON article_categories(category_id);

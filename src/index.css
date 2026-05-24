@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif", ui-serif, Georgia, serif;
+  
+  /* Taoist Talisman Theme (Cinnabar & Paper) */
+  --color-dao-900: #f4e8d1; /* Nền giấy bồi / Talisman Paper */
+  --color-dao-800: #fbf4e3; /* Sáng hơn, như mặt giấy bắt sáng */
+  --color-dao-700: #e5d1a8; /* Viền, đường nếp gấp */
+  
+  /* Text elements - Deep wood from the table instead of black */
+  --color-white: #27140e; /* Màu chữ: Nâu đen sậm của mặt bàn gỗ */
+  --color-moss-900: #806c44; /* Đồng xu cổ (Antique Bronze) */
+  
+  /* Accents */
+  --color-saffron-400: #c92a23; /* Đỏ Chu Sa (Cinnabar Red) - Chuyển vàng thành nét mực đỏ chủ đạo */
+  --color-saffron-500: #9e1c16; /* Đỏ sậm hơn (Tassel shadow) */
+  --color-saffron-200: #ffded7; /* Nền đỏ cực nhạt cho highlight */
+  
+  --color-jade-400: #eabb48; /* Vàng chỉ dụ (Talisman yellow for secondary accents) */
+  --color-rust-900: #f18d36; /* Cam ánh nến (Candle Glow) */
+}
+
+body {
+  background-color: var(--color-dao-900);
+  color: var(--color-white);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+}
+
+.dao-panel {
+  background: rgba(251, 244, 227, 0.6); /* Translucent light cream paper */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 42, 35, 0.15); /* Translucent cinnabar red */
+}
+
+.saffron-gradient-text {
+  background: linear-gradient(135deg, #ffded7 0%, #c92a23 50%, #9e1c16 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gilded {
+  background: linear-gradient(
+    110deg,
+    #e9a341 0%,     /* Gold highlight */
+    #c92a23 30%,    /* Chu sa red */
+    #69120c 60%,    /* Deep lacquer */
+    #d44538 80%,    /* Reflected red */
+    #27140e 100%    /* Deep wood shadow */
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 8s linear infinite;
+}
+
+.bg-gilded {
+  background: linear-gradient(
+    110deg,
+    #e9a341 0%,
+    #c92a23 30%,
+    #69120c 60%,
+    #d44538 80%,
+    #27140e 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 8s linear infinite;
+}
+
+.border-gilded {
+  border-image: linear-gradient(
+    110deg,
+    #e9a341 0%,
+    #c92a23 30%,
+    #69120c 60%,
+    #d44538 80%,
+    #27140e 100%
+  ) 1;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hover-glow {
+  transition: all 0.4s ease;
+}
+
+.hover-glow:hover {
+  border-color: rgba(214, 176, 82, 0.4);
+}

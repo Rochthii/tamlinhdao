@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "booking": {
+      "title": "Booking",
+      "description": "A booking request from the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name" },
+        "dob": { "type": "string", "description": "Date of birth" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "message": { "type": "string", "description": "Problem/Question" },
+        "createdAt": { "type": "number", "description": "Timestamp of creation" },
+        "status": { "type": "string", "enum": ["pending", "contacted"], "description": "Status" }
+      },
+      "required": ["name", "dob", "phone", "message", "createdAt", "status"]
+    }
+  },
+  "firestore": {
+    "bookings/{bookingId}": {
+      "schema": "booking",
+      "description": "Booking requests submitted by users"
+    }
+  }
+}

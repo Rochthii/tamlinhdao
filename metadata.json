@@ -1,0 +1,6 @@
+{
+  "name": "ĐẠO",
+  "description": "Nền tảng tâm linh mang phong cách Phương Đông, Phật giáo, Đạo giáo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

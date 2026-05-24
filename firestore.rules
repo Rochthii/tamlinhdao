@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidBooking(data) {
+      return data.keys().hasAll(['name', 'dob', 'phone', 'message', 'createdAt', 'status'])
+        && data.keys().size() == 6
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.dob is string && data.dob.size() <= 40
+        && data.phone is string && data.phone.size() > 0 && data.phone.size() <= 40
+        && data.message is string && data.message.size() <= 3000
+        && data.createdAt == request.time
+        && data.status == 'pending';
+    }
+
+    match /bookings/{bookingId} {
+      allow create: if isValidBooking(request.resource.data)
+                    && bookingId is string && bookingId.size() <= 128 && bookingId.matches('^[a-zA-Z0-9_\\-]+$');
+      
+      // Allow read, update, delete for the admin portal queries in this environment
+      allow read, update, delete: if true;
+    }
+  }
+}

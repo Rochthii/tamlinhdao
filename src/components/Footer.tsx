@@ -11,9 +11,9 @@ export default function Footer() {
         <span className="text-saffron-500 font-bold bg-[#ffded7]/30 px-2 py-0.5 rounded">Phát triển bởi: Chăm Rốch Thi</span>
       </div>
       <div className="flex gap-4 md:gap-6">
-        <a href="#" className="hover:text-saffron-400 transition-colors">Facebook</a>
-        <a href="#" className="hover:text-saffron-400 transition-colors">Instagram</a>
-        <a href="#" className="hover:text-saffron-400 transition-colors">Threads</a>
+        <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="hover:text-saffron-400 transition-colors">Facebook</a>
+        <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="hover:text-saffron-400 transition-colors">Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="hover:text-saffron-400 transition-colors">Threads</a>
         <Link to="/admin" className="hover:text-saffron-400 transition-colors block md:hidden">Quản Trị</Link>
       </div>
     </footer>

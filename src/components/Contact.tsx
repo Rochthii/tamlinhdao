@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export default function Contact() {
-  const [formData, setFormData] = useState({ name: '', dob: '', phone: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', dob: '', phone: '', service: 'Đăng ký xem bài Tarot', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -28,7 +28,7 @@ export default function Contact() {
           name: formData.name,
           dob: formData.dob || '',
           phone: formData.phone,
-          message: formData.message || '',
+          message: `[Dịch vụ mong muốn: ${formData.service}]\n\n${formData.message || ''}`,
           status: 'pending'
         }]);
         
@@ -38,7 +38,7 @@ export default function Contact() {
       }
 
       setIsSuccess(true);
-      setFormData({ name: '', dob: '', phone: '', message: '' });
+      setFormData({ name: '', dob: '', phone: '', service: 'Đăng ký xem bài Tarot', message: '' });
     } catch (error) {
       console.error('Lưu vào Supabase thất bại, chuyển sang lưu local:', error);
       // Fallback: save booking locally so it can be synced later
@@ -50,7 +50,7 @@ export default function Contact() {
           name: formData.name,
           dob: formData.dob || '',
           phone: formData.phone,
-          message: formData.message || '',
+          message: `[Dịch vụ mong muốn: ${formData.service}]\n\n${formData.message || ''}`,
           createdAt: new Date().toISOString(),
           status: 'pending-offline'
         };
@@ -59,7 +59,7 @@ export default function Contact() {
 
         // Show success-like feedback and clear form
         setIsSuccess(true);
-        setFormData({ name: '', dob: '', phone: '', message: '' });
+        setFormData({ name: '', dob: '', phone: '', service: 'Đăng ký xem bài Tarot', message: '' });
         setErrorMsg('Mạng tạm thời. Yêu cầu đã lưu tạm thời và sẽ được gửi khi có kết nối.');
       } catch (e) {
         setErrorMsg('Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
@@ -111,6 +111,20 @@ export default function Contact() {
             ) : (
             <form className="space-y-4" onSubmit={handleSubmit}>
               {errorMsg && <p className="text-rust-900 text-xs">{errorMsg}</p>}
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold mb-2">Dịch vụ mong muốn hỗ trợ</label>
+                <select
+                  name="service"
+                  value={formData.service}
+                  onChange={handleInputChange}
+                  className="w-full bg-dao-800/50 border border-saffron-400/20 rounded-sm px-4 py-3 text-sm outline-none focus:border-saffron-400/60 transition-all text-white placeholder-white/30 focus:bg-dao-800"
+                >
+                  <option value="Đăng ký xem bài Tarot">Đăng ký xem bài Tarot</option>
+                  <option value="Tham vấn Tâm linh & Chữa lành">Tham vấn Tâm linh & Chữa lành</option>
+                  <option value="Luận giải Vận mệnh (Bát Tự/Kinh Dịch)">Luận giải Vận mệnh (Bát Tự/Kinh Dịch)</option>
+                  <option value="Yêu cầu Nghi lễ (Cầu an/Gieo phước)">Yêu cầu Nghi lễ (Cầu an/Gieo phước)</option>
+                </select>
+              </div>
               <div>
                 <input 
                   type="text" 
@@ -175,21 +189,21 @@ export default function Contact() {
             {/* Direct Contact */}
             <div className="dao-panel p-6 rounded-sm">
               <h4 className="text-xs font-serif text-saffron-400 uppercase tracking-widest mb-6">Liên Hệ Trực Tiếp</h4>
-              <a href="#" className="flex items-center gap-4 bg-dao-800/60 hover:bg-saffron-400/10 border border-saffron-400/10 hover:border-saffron-400/30 text-white rounded-sm p-4 transition-all mb-4 group">
+              <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-dao-800/60 hover:bg-saffron-400/10 border border-saffron-400/10 hover:border-saffron-400/30 text-white rounded-sm p-4 transition-all mb-4 group">
                 <MessageSquare className="w-5 h-5 text-white/50 group-hover:text-saffron-400" />
                 <div>
                   <p className="text-sm font-medium">Facebook Messenger</p>
                   <p className="text-[10px] text-white/40 mt-1 uppercase tracking-wider">Trò chuyện trực tiếp</p>
                 </div>
               </a>
-              <a href="#" className="flex items-center gap-4 bg-dao-800/60 hover:bg-rust-900/10 border border-saffron-400/10 hover:border-rust-900/30 text-white rounded-sm p-4 transition-all mb-4 group">
+              <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-dao-800/60 hover:bg-rust-900/10 border border-saffron-400/10 hover:border-rust-900/30 text-white rounded-sm p-4 transition-all mb-4 group">
                 <MessageSquare className="w-5 h-5 text-white/50 group-hover:text-rust-900" />
                 <div>
                   <p className="text-sm font-medium">Instagram Direct</p>
                   <p className="text-[10px] text-white/40 mt-1 uppercase tracking-wider">Theo dõi & Nhắn tin</p>
                 </div>
               </a>
-              <a href="#" className="flex items-center gap-4 bg-dao-800/60 hover:bg-jade-400/10 border border-saffron-400/10 hover:border-jade-400/30 text-white rounded-sm p-4 transition-all group">
+              <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-dao-800/60 hover:bg-jade-400/10 border border-saffron-400/10 hover:border-jade-400/30 text-white rounded-sm p-4 transition-all group">
                 <MessageSquare className="w-5 h-5 text-white/50 group-hover:text-jade-400" />
                 <div>
                   <p className="text-sm font-medium">Threads</p>

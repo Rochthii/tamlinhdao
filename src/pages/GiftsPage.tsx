@@ -30,7 +30,7 @@ export default function GiftsPage() {
         </motion.div>
 
         {/* Newcomers Section */}
-        <div className="mb-24">
+        <div className="mb-24" id="newcomer">
            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ export default function GiftsPage() {
         </div>
 
         {/* Loyal Section */}
-        <div className="relative">
+        <div className="relative" id="loyal">
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-full bg-saffron-400/5 blur-[100px] pointer-events-none rounded-full"></div>
            <motion.div
               initial={{ opacity: 0, y: 20 }}

@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ParticleBackground from './components/ParticleBackground';
 import Hero from './components/Hero';
@@ -91,25 +91,48 @@ export default function App() {
           </div>
           <span className="text-xl font-serif tracking-widest uppercase text-[#ffffff] hidden sm:block font-bold drop-shadow-md">ĐẠO</span>
         </Link>
-        <div className="hidden md:flex gap-6 text-[10px] uppercase tracking-[0.2em] font-medium text-[#ffffff]">
+        <div className="hidden md:flex gap-6 text-[10px] uppercase tracking-[0.2em] font-medium text-[#ffffff] items-center">
+          <Link to="/" className={location.pathname === '/' ? "text-saffron-400 font-bold tracking-[0.2em] transition-colors" : "hover:text-saffron-400 transition-colors"}>Trang chủ</Link>
+          
           {location.pathname === '/' ? (
-            <>
-              <a href="#about" className="hover:text-saffron-400 transition-colors">Giới thiệu</a>
-              <Link to="/tu-lieu" className="hover:text-saffron-400 transition-colors">Tư liệu</Link>
-              <Link to="/ho-tro" className="hover:text-saffron-400 transition-colors">Hỗ trợ</Link>
-              <Link to="/gieo-duyen" className="hover:text-saffron-400 transition-colors">Gieo duyên</Link>
-              <Link to="/phan-hoi" className="hover:text-saffron-400 transition-colors">Phản hồi</Link>
-              <a href="#contact" className="hover:text-saffron-400 transition-colors">Liên hệ</a>
-            </>
+            <a href="#about" className="hover:text-saffron-400 transition-colors">Giới thiệu</a>
           ) : (
-            <>
-              <Link to="/" className="hover:text-saffron-400 transition-colors">Trang chủ</Link>
-              <Link to="/gioi-thieu" className={location.pathname === '/gioi-thieu' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Giới thiệu</Link>
-              <Link to="/tu-lieu" className={location.pathname === '/tu-lieu' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Tư liệu</Link>
-              <Link to="/ho-tro" className={location.pathname === '/ho-tro' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Hỗ trợ</Link>
-              <Link to="/gieo-duyen" className={location.pathname === '/gieo-duyen' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Gieo duyên</Link>
-              <Link to="/phan-hoi" className={location.pathname === '/phan-hoi' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Phản hồi</Link>
-            </>
+            <Link to="/gioi-thieu" className={location.pathname === '/gioi-thieu' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Giới thiệu</Link>
+          )}
+          
+          <Link to="/tu-lieu" className={location.pathname === '/tu-lieu' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Tư liệu</Link>
+          
+          {/* Hỗ Trợ Tâm Linh Dropdown */}
+          <div className="relative group py-2">
+            <Link to="/ho-tro" className={`hover:text-saffron-400 transition-colors flex items-center gap-1.5 ${location.pathname === '/ho-tro' ? "text-saffron-400" : ""}`}>
+              Hỗ Trợ Tâm Linh
+              <ChevronDown className="w-3 h-3 text-saffron-400/70 group-hover:rotate-180 transition-transform duration-300" />
+            </Link>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-[#7a1212]/95 border border-saffron-400/20 py-2 rounded-md shadow-2xl min-w-[280px] z-50 backdrop-blur-md">
+              <Link to="/ho-tro#luan-van-menh" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Luận Vận Mệnh</Link>
+              <Link to="/ho-tro#tham-van-tam-linh" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Tham Vấn Tâm Linh</Link>
+              <Link to="/ho-tro#nghi-le" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors text-wrap leading-normal">Tư vấn và Hỗ trợ nghi lễ theo yêu cầu</Link>
+            </div>
+          </div>
+          
+          {/* Gieo Duyên Quà Tặng Dropdown */}
+          <div className="relative group py-2">
+            <Link to="/gieo-duyen" className={`hover:text-saffron-400 transition-colors flex items-center gap-1.5 ${location.pathname === '/gieo-duyen' ? "text-saffron-400" : ""}`}>
+              Gieo Duyên Quà Tặng
+              <ChevronDown className="w-3 h-3 text-saffron-400/70 group-hover:rotate-180 transition-transform duration-300" />
+            </Link>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-[#7a1212]/95 border border-saffron-400/20 py-2 rounded-md shadow-2xl min-w-[240px] z-50 backdrop-blur-md">
+              <Link to="/gieo-duyen#loyal" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Khách hàng thân thuộc</Link>
+              <Link to="/gieo-duyen#newcomer" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Gieo duyên người mới</Link>
+            </div>
+          </div>
+          
+          <Link to="/phan-hoi" className={location.pathname === '/phan-hoi' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Feedback</Link>
+          
+          {location.pathname === '/' ? (
+            <a href="#contact" className="hover:text-saffron-400 transition-colors">Liên hệ</a>
+          ) : (
+            <Link to="/#contact" className="hover:text-saffron-400 transition-colors">Liên hệ</Link>
           )}
         </div>
         
@@ -157,19 +180,19 @@ export default function App() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-              className="fixed top-0 right-0 bottom-0 w-72 bg-[#7a1212] z-50 shadow-[0_0_40px_rgba(0,0,0,0.5)] p-6 flex flex-col md:hidden border-l border-saffron-400/20"
+              className="fixed top-0 right-0 bottom-0 w-72 bg-[#fbf4e3] z-50 shadow-[0_0_40px_rgba(0,0,0,0.15)] p-6 flex flex-col md:hidden border-l border-saffron-400/20"
             >
               {/* Sidebar Header */}
-              <div className="flex items-center justify-between mb-8 pb-4 border-b border-saffron-400/20">
+              <div className="flex items-center justify-between mb-8 pb-4 border-b border-saffron-400/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border border-saffron-400/30 flex items-center justify-center bg-dao-800 shadow-[0_0_15px_rgba(214,176,82,0.1)]">
+                  <div className="w-8 h-8 rounded-full border border-saffron-400/30 flex items-center justify-center bg-[#f4e8d1] shadow-[0_0_15px_rgba(214,176,82,0.15)]">
                     <div className="w-4 h-4 bg-gilded rounded-full"></div>
                   </div>
-                  <span className="text-xl font-serif tracking-widest uppercase text-white font-bold drop-shadow-md">ĐẠO</span>
+                  <span className="text-xl font-serif tracking-widest uppercase text-[#27140e] font-bold drop-shadow-sm">ĐẠO</span>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 text-white hover:text-saffron-400 transition-colors cursor-pointer"
+                  className="p-2 text-[#27140e] hover:text-saffron-400 transition-colors cursor-pointer"
                   aria-label="Close Mobile Menu"
                 >
                   <X className="w-6 h-6" />
@@ -177,135 +200,134 @@ export default function App() {
               </div>
 
               {/* Sidebar Menu Items */}
-              <nav className="flex flex-col gap-3 text-sm uppercase tracking-[0.25em] font-semibold">
+              <nav className="flex flex-col gap-4 text-xs uppercase tracking-[0.2em] font-bold text-[#27140e]">
+                {/* Trang Chủ */}
+                <Link
+                  to="/"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`py-3 px-4 rounded-lg transition-all duration-300 border flex items-center justify-between ${
+                    location.pathname === '/'
+                      ? 'bg-saffron-400/10 text-saffron-400 border-saffron-400/30 font-bold'
+                      : 'bg-[#f4e8d1]/40 border-saffron-400/10 hover:border-saffron-400/30'
+                  }`}
+                >
+                  <span>Trang chủ</span>
+                  <span className="text-saffron-400">✦</span>
+                </Link>
+
+                {/* Giới Thiệu */}
                 {location.pathname === '/' ? (
-                  <>
-                    <a
-                      href="#about"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-white hover:text-saffron-300 py-3.5 px-4 rounded-lg bg-[#69120c] hover:bg-[#8d1910] border border-saffron-400/20 hover:border-saffron-400 transition-all duration-300 flex items-center justify-between shadow-md group"
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold">Giới thiệu</span>
-                      <span className="text-saffron-400">✦</span>
-                    </a>
-                    <Link
-                      to="/tu-lieu"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-white hover:text-saffron-300 py-3.5 px-4 rounded-lg bg-[#69120c] hover:bg-[#8d1910] border border-saffron-400/20 hover:border-saffron-400 transition-all duration-300 flex items-center justify-between shadow-md group"
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold">Tư liệu</span>
-                      <span className="text-saffron-400">✦</span>
-                    </Link>
-                    <Link
-                      to="/ho-tro"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-white hover:text-saffron-300 py-3.5 px-4 rounded-lg bg-[#69120c] hover:bg-[#8d1910] border border-saffron-400/20 hover:border-saffron-400 transition-all duration-300 flex items-center justify-between shadow-md group"
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold">Hỗ trợ</span>
-                      <span className="text-saffron-400">✦</span>
-                    </Link>
-                    <Link
-                      to="/gieo-duyen"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-white hover:text-saffron-300 py-3.5 px-4 rounded-lg bg-[#69120c] hover:bg-[#8d1910] border border-saffron-400/20 hover:border-saffron-400 transition-all duration-300 flex items-center justify-between shadow-md group"
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold">Gieo duyên</span>
-                      <span className="text-saffron-400">✦</span>
-                    </Link>
-                    <Link
-                      to="/phan-hoi"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-white hover:text-saffron-300 py-3.5 px-4 rounded-lg bg-[#69120c] hover:bg-[#8d1910] border border-saffron-400/20 hover:border-saffron-400 transition-all duration-300 flex items-center justify-between shadow-md group"
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold">Phản hồi</span>
-                      <span className="text-saffron-400">✦</span>
-                    </Link>
-                    <a
-                      href="#contact"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-white hover:text-saffron-300 py-3.5 px-4 rounded-lg bg-[#69120c] hover:bg-[#8d1910] border border-saffron-400/20 hover:border-saffron-400 transition-all duration-300 flex items-center justify-between shadow-md group"
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold">Liên hệ</span>
-                      <span className="text-saffron-400">✦</span>
-                    </a>
-                  </>
+                  <a
+                    href="#about"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="py-3 px-4 rounded-lg bg-[#f4e8d1]/40 border border-saffron-400/10 hover:border-saffron-400/30 transition-all duration-300 flex items-center justify-between"
+                  >
+                    <span>Giới thiệu</span>
+                    <span className="text-saffron-400">✦</span>
+                  </a>
                 ) : (
-                  <>
-                    <Link
-                      to="/"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-white hover:text-saffron-300 py-3.5 px-4 rounded-lg bg-[#69120c] hover:bg-[#8d1910] border border-saffron-400/20 hover:border-saffron-400 transition-all duration-300 flex items-center justify-between shadow-md group"
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300 font-bold">Trang chủ</span>
-                      <span className="text-saffron-400">✦</span>
+                  <Link
+                    to="/gioi-thieu"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`py-3 px-4 rounded-lg transition-all duration-300 border flex items-center justify-between ${
+                      location.pathname === '/gioi-thieu'
+                        ? 'bg-saffron-400/10 text-saffron-400 border-saffron-400/30 font-bold'
+                        : 'bg-[#f4e8d1]/40 border-saffron-400/10 hover:border-saffron-400/30'
+                    }`}
+                  >
+                    <span>Giới thiệu</span>
+                    <span className="text-saffron-400">✦</span>
+                  </Link>
+                )}
+
+                {/* Tư Liệu */}
+                <Link
+                  to="/tu-lieu"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`py-3 px-4 rounded-lg transition-all duration-300 border flex items-center justify-between ${
+                    location.pathname === '/tu-lieu'
+                      ? 'bg-saffron-400/10 text-saffron-400 border-saffron-400/30 font-bold'
+                      : 'bg-[#f4e8d1]/40 border-saffron-400/10 hover:border-saffron-400/30'
+                  }`}
+                >
+                  <span>Tư liệu</span>
+                  <span className="text-saffron-400">✦</span>
+                </Link>
+
+                {/* Hỗ Trợ Tâm Linh Đa cấp */}
+                <div className="flex flex-col gap-1 rounded-lg border border-saffron-400/10 p-3.5 bg-[#f4e8d1]/30">
+                  <span className="text-[#27140e] font-serif font-bold text-xs tracking-wider px-1 pb-2 border-b border-saffron-400/10 uppercase flex items-center justify-between">
+                    Hỗ Trợ Tâm Linh
+                    <ChevronDown className="w-3.5 h-3.5 text-saffron-400" />
+                  </span>
+                  <div className="flex flex-col pl-3 border-l border-saffron-400/20 gap-3 mt-3 pb-1">
+                    <Link to="/ho-tro#luan-van-menh" onClick={() => setIsMobileMenuOpen(false)} className="text-[10px] tracking-widest text-[#27140e]/80 hover:text-saffron-400 transition-colors uppercase font-bold flex items-center justify-between">
+                      <span>✦ Luận Vận Mệnh</span>
                     </Link>
-                    <Link
-                      to="/gioi-thieu"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`py-3.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-between shadow-md group border ${
-                        location.pathname === '/gioi-thieu'
-                          ? 'bg-gilded text-[#ffffff] border-saffron-400 font-bold shadow-[0_0_15px_rgba(233,163,65,0.3)] animate-pulse'
-                          : 'bg-[#69120c] text-white hover:bg-[#8d1910] border-saffron-400/20 hover:border-saffron-400'
-                      }`}
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300">Giới thiệu</span>
-                      <span className={location.pathname === '/gioi-thieu' ? 'text-white' : 'text-saffron-400'}>✦</span>
+                    <Link to="/ho-tro#tham-van-tam-linh" onClick={() => setIsMobileMenuOpen(false)} className="text-[10px] tracking-widest text-[#27140e]/80 hover:text-saffron-400 transition-colors uppercase font-bold flex items-center justify-between">
+                      <span>✦ Tham Vấn Tâm Linh</span>
                     </Link>
-                    <Link
-                      to="/tu-lieu"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`py-3.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-between shadow-md group border ${
-                        location.pathname === '/tu-lieu'
-                          ? 'bg-gilded text-[#ffffff] border-saffron-400 font-bold shadow-[0_0_15px_rgba(233,163,65,0.3)] animate-pulse'
-                          : 'bg-[#69120c] text-white hover:bg-[#8d1910] border-saffron-400/20 hover:border-saffron-400'
-                      }`}
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300">Tư liệu</span>
-                      <span className={location.pathname === '/tu-lieu' ? 'text-white' : 'text-saffron-400'}>✦</span>
+                    <Link to="/ho-tro#nghi-le" onClick={() => setIsMobileMenuOpen(false)} className="text-[10px] tracking-widest text-[#27140e]/80 hover:text-saffron-400 transition-colors uppercase font-bold flex items-center justify-between text-left leading-normal">
+                      <span>✦ Nghi lễ cầu an</span>
                     </Link>
-                    <Link
-                      to="/ho-tro"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`py-3.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-between shadow-md group border ${
-                        location.pathname === '/ho-tro'
-                          ? 'bg-gilded text-[#ffffff] border-saffron-400 font-bold shadow-[0_0_15px_rgba(233,163,65,0.3)] animate-pulse'
-                          : 'bg-[#69120c] text-white hover:bg-[#8d1910] border-saffron-400/20 hover:border-saffron-400'
-                      }`}
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300">Hỗ trợ</span>
-                      <span className={location.pathname === '/ho-tro' ? 'text-white' : 'text-saffron-400'}>✦</span>
+                  </div>
+                </div>
+
+                {/* Gieo Duyên Quà Tặng Đa cấp */}
+                <div className="flex flex-col gap-1 rounded-lg border border-saffron-400/10 p-3.5 bg-[#f4e8d1]/30">
+                  <span className="text-[#27140e] font-serif font-bold text-xs tracking-wider px-1 pb-2 border-b border-saffron-400/10 uppercase flex items-center justify-between">
+                    Gieo Duyên Quà Tặng
+                    <ChevronDown className="w-3.5 h-3.5 text-saffron-400" />
+                  </span>
+                  <div className="flex flex-col pl-3 border-l border-saffron-400/20 gap-3 mt-3 pb-1">
+                    <Link to="/gieo-duyen#loyal" onClick={() => setIsMobileMenuOpen(false)} className="text-[10px] tracking-widest text-[#27140e]/80 hover:text-saffron-400 transition-colors uppercase font-bold flex items-center justify-between">
+                      <span>✦ Khách thân thuộc</span>
                     </Link>
-                    <Link
-                      to="/gieo-duyen"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`py-3.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-between shadow-md group border ${
-                        location.pathname === '/gieo-duyen'
-                          ? 'bg-gilded text-[#ffffff] border-saffron-400 font-bold shadow-[0_0_15px_rgba(233,163,65,0.3)] animate-pulse'
-                          : 'bg-[#69120c] text-white hover:bg-[#8d1910] border-saffron-400/20 hover:border-saffron-400'
-                      }`}
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300">Gieo duyên</span>
-                      <span className={location.pathname === '/gieo-duyen' ? 'text-white' : 'text-saffron-400'}>✦</span>
+                    <Link to="/gieo-duyen#newcomer" onClick={() => setIsMobileMenuOpen(false)} className="text-[10px] tracking-widest text-[#27140e]/80 hover:text-saffron-400 transition-colors uppercase font-bold flex items-center justify-between">
+                      <span>✦ Gieo duyên mới</span>
                     </Link>
-                    <Link
-                      to="/phan-hoi"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`py-3.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-between shadow-md group border ${
-                        location.pathname === '/phan-hoi'
-                          ? 'bg-gilded text-[#ffffff] border-saffron-400 font-bold shadow-[0_0_15px_rgba(233,163,65,0.3)] animate-pulse'
-                          : 'bg-[#69120c] text-white hover:bg-[#8d1910] border-saffron-400/20 hover:border-saffron-400'
-                      }`}
-                    >
-                      <span className="group-hover:translate-x-1.5 transition-transform duration-300">Phản hồi</span>
-                      <span className={location.pathname === '/phan-hoi' ? 'text-white' : 'text-saffron-400'}>✦</span>
-                    </Link>
-                  </>
+                  </div>
+                </div>
+
+                {/* Feedback */}
+                <Link
+                  to="/phan-hoi"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`py-3 px-4 rounded-lg transition-all duration-300 border flex items-center justify-between ${
+                    location.pathname === '/phan-hoi'
+                      ? 'bg-saffron-400/10 text-saffron-400 border-saffron-400/30 font-bold'
+                      : 'bg-[#f4e8d1]/40 border-saffron-400/10 hover:border-saffron-400/30'
+                  }`}
+                >
+                  <span>Feedback</span>
+                  <span className="text-saffron-400">✦</span>
+                </Link>
+
+                {/* Liên hệ */}
+                {location.pathname === '/' ? (
+                  <a
+                    href="#contact"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="py-3 px-4 rounded-lg bg-[#f4e8d1]/40 border border-saffron-400/10 hover:border-saffron-400/30 transition-all duration-300 flex items-center justify-between"
+                  >
+                    <span>Liên hệ</span>
+                    <span className="text-saffron-400">✦</span>
+                  </a>
+                ) : (
+                  <Link
+                    to="/#contact"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="py-3 px-4 rounded-lg bg-[#f4e8d1]/40 border border-saffron-400/10 hover:border-saffron-400/30 transition-all duration-300 flex items-center justify-between"
+                  >
+                    <span>Liên hệ</span>
+                    <span className="text-saffron-400">✦</span>
+                  </Link>
                 )}
               </nav>
 
               {/* Decorative Quote inside the Mobile menu */}
               <div className="mt-auto pt-6 border-t border-saffron-400/10 text-center">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-white/40">Gieo Duyên Lành • Tạo Phúc Đức</p>
+                <p className="text-[9px] uppercase tracking-[0.2em] text-[#27140e]/40">Gieo Duyên Lành • Tạo Phúc Đức</p>
               </div>
             </motion.div>
           </>

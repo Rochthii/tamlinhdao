@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LayoutDashboard, BookOpen, HeartHandshake, Flame, MessageSquare, Settings, LogOut, Plus, Edit2, Trash2, ArrowLeft, Lock, Mail, Eye, EyeOff, ShieldAlert, KeyRound, Users, Check, Clock } from 'lucide-react';
+import { LayoutDashboard, BookOpen, HeartHandshake, Flame, MessageSquare, Settings, LogOut, Plus, Edit2, Trash2, ArrowLeft, Lock, Mail, Eye, EyeOff, ShieldAlert, KeyRound, Users, Check, Clock, Sparkles, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { fetchTable, supabase } from '../lib/supabase';
@@ -9,9 +9,10 @@ import CategoriesManager from '../components/CategoriesManager';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { articles, services, gifts, testimonials, members } = useAppContext();
+  const { articles, services, gifts, testimonials, members, refreshData } = useAppContext();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Quản lý phiên đăng nhập thực tế từ Supabase
   useEffect(() => {
@@ -271,30 +272,121 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex h-screen bg-dao-900 overflow-hidden font-sans text-white">
+    <div className="flex h-screen bg-dao-900 overflow-hidden font-sans text-white relative">
+      {/* Mobile sidebar overlay backdrop */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <div className="w-64 bg-dao-800 border-r border-saffron-400/10 flex flex-col shrink-0 relative z-20">
-        <div className="h-16 flex items-center gap-2 justify-center border-b border-saffron-400/10 shrink-0">
+      <div 
+        className={`fixed inset-y-0 left-0 w-64 bg-dao-800 border-r border-saffron-400/10 flex flex-col shrink-0 z-40 transition-transform duration-300 transform md:translate-x-0 md:relative md:flex ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="h-16 flex items-center gap-2 justify-between px-4 border-b border-saffron-400/10 shrink-0">
           <Link to="/" className="text-saffron-400 font-serif text-xl tracking-widest uppercase">Đạo Admin</Link>
+          <button 
+            onClick={() => setIsSidebarOpen(false)} 
+            className="p-1.5 hover:bg-white/5 rounded-md md:hidden text-white/60 hover:text-white cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        <div className="flex-1 overflow-y-auto py-6">
-          <nav className="space-y-1 px-4">
-             {tabs.map((tab) => (
+        
+        <div className="flex-1 overflow-y-auto py-6 space-y-6">
+          {/* Phân nhóm 1: Hệ Thống Đạo Quán */}
+          <div className="px-4 space-y-2 text-left">
+            <h3 className="text-[9px] font-bold text-saffron-400/50 uppercase tracking-[0.25em] px-2 mb-2">Hệ Thống Đạo Quán</h3>
+            <nav className="space-y-1">
+              {tabs.filter(t => ['dashboard', 'bookings', 'members'].includes(t.id)).map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-md text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
                     activeTab === tab.id
                       ? 'bg-saffron-400/10 text-saffron-400 border border-saffron-400/20'
                       : 'text-white/60 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  <tab.icon className="w-5 h-5 opacity-70" />
-                  {tab.label}
+                  <div className="flex items-center gap-3">
+                    <tab.icon className="w-4 h-4 opacity-70" />
+                    <span>{tab.label}</span>
+                  </div>
+                  {tab.id === 'bookings' && bookings.filter(b => b.status === 'pending').length > 0 && (
+                    <span className="bg-rust-900 text-white text-[9px] px-1.5 py-0.5 rounded-full font-mono animate-pulse">
+                      {bookings.filter(b => b.status === 'pending').length}
+                    </span>
+                  )}
                 </button>
-             ))}
-          </nav>
+              ))}
+            </nav>
+          </div>
+
+          {/* Phân nhóm 2: Nội Dung Tâm Thức */}
+          <div className="px-4 space-y-2 text-left">
+            <h3 className="text-[9px] font-bold text-saffron-400/50 uppercase tracking-[0.25em] px-2 mb-2">Nội Dung Tâm Thức</h3>
+            <nav className="space-y-1">
+              {tabs.filter(t => ['articles', 'categories', 'testimonials'].includes(t.id)).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-md text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                    activeTab === tab.id
+                      ? 'bg-saffron-400/10 text-saffron-400 border border-saffron-400/20'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <tab.icon className="w-4 h-4 opacity-70" />
+                    <span>{tab.label}</span>
+                  </div>
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Phân nhóm 3: Tuyến Phục Sự */}
+          <div className="px-4 space-y-2 text-left">
+            <h3 className="text-[9px] font-bold text-saffron-400/50 uppercase tracking-[0.25em] px-2 mb-2">Tuyến Phục Sự</h3>
+            <nav className="space-y-1">
+              {tabs.filter(t => ['services', 'gifts'].includes(t.id)).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-md text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                    activeTab === tab.id
+                      ? 'bg-saffron-400/10 text-saffron-400 border border-saffron-400/20'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <tab.icon className="w-4 h-4 opacity-70" />
+                    <span>{tab.label}</span>
+                  </div>
+                </button>
+              ))}
+            </nav>
+          </div>
         </div>
+
         <div className="p-4 border-t border-saffron-400/10 shrink-0">
           <button
             onClick={async () => {
@@ -314,8 +406,16 @@ export default function AdminPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden bg-dao-900/50">
         {/* Header */}
-        <header className="h-16 flex items-center justify-between px-8 bg-dao-800/80 border-b border-saffron-400/10 shrink-0">
-          <h1 className="text-xl font-serif text-white">{tabs.find(t => t.id === activeTab)?.label}</h1>
+        <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-dao-800/80 border-b border-saffron-400/10 shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 hover:bg-white/5 rounded-md md:hidden text-white/70 hover:text-white cursor-pointer"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-base sm:text-xl font-serif text-white">{tabs.find(t => t.id === activeTab)?.label}</h1>
+          </div>
           <div className="flex items-center gap-4">
             <div className="w-8 h-8 rounded-full bg-saffron-400/20 text-saffron-400 flex items-center justify-center font-bold text-xs border border-saffron-400/30">
               AD
@@ -324,8 +424,8 @@ export default function AdminPage() {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 relative">
-          {activeTab === 'dashboard' && <DashboardTab bookings={bookings} />}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-8 relative">
+          {activeTab === 'dashboard' && <DashboardTab bookings={bookings} setActiveTab={setActiveTab} />}
           {activeTab === 'bookings' && <BookingsTab bookings={bookings} />}
           {activeTab === 'articles' && <ArticlesTab />}
           {activeTab === 'categories' && <CategoriesTab />}
@@ -339,41 +439,115 @@ export default function AdminPage() {
   );
 }
 
-function DashboardTab({ bookings }: { bookings: any[] }) {
+function DashboardTab({ bookings, setActiveTab }: { bookings: any[]; setActiveTab: (tab: string) => void }) {
   const { articles, services, gifts, testimonials, members } = useAppContext();
-  const stats = [
-    { label: 'Yêu Cầu Hỗ Trợ', value: bookings.length },
-    { label: 'Tư Liệu', value: articles.length },
-    { label: 'Dịch Vụ Hỗ Trợ', value: services.length },
-    { label: 'Phần Quà Gieo Duyên', value: gifts.length },
-    { label: 'Phản Hồi', value: testimonials.length },
-    { label: 'Thành Viên', value: members ? members.length : 0 },
-  ];
+
+  const pendingBookings = bookings.filter(b => b.status === 'pending').length;
+  const publishedArticles = articles.filter(a => (a as any).published !== false).length;
+  const draftArticles = articles.length - publishedArticles;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-      {stats.map((stat, i) => (
-        <motion.div 
-          key={i} 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1 }}
-          className="dao-panel p-6 rounded-lg border border-saffron-400/10 bg-dao-800/30"
-        >
-          <h3 className="text-white/50 text-xs uppercase tracking-widest mb-2">{stat.label}</h3>
-          <p className="text-3xl font-serif text-saffron-400">{stat.value}</p>
-        </motion.div>
-      ))}
+    <div className="space-y-8 text-left">
+      {/* Welcome Banner */}
+      <div className="dao-panel p-8 border border-saffron-400/10 relative overflow-hidden rounded-xl bg-gradient-to-r from-dao-800/40 via-dao-900/40 to-transparent">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(circle_at_100%_0%,rgba(214,176,82,0.06)_0%,transparent_70%)] pointer-events-none"></div>
+        <div className="relative z-10 space-y-2">
+          <h2 className="text-2xl font-serif text-saffron-400">Nam Mô Đạo Tổ • Quản Trị Viên Đạo Quán</h2>
+          <p className="text-xs text-white/50 font-light leading-relaxed max-w-2xl">
+            Chào mừng bạn hữu đã quy lai cổng quản trị tâm linh. Nơi đây là cầu nối tiếp dẫn phước đức và tu dưỡng tri thức. Hãy kiểm tra các yêu cầu liên hệ hoặc tạo thêm bài viết bổ ích giúp bạn hữu gần xa.
+          </p>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Bookings Stat Card */}
+        <div className="dao-panel p-6 rounded-xl border border-saffron-400/10 bg-dao-800/20 flex flex-col justify-between h-40">
+          <div>
+            <h3 className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-2">Yêu Cầu Hỗ Trợ</h3>
+            <p className="text-4xl font-serif text-saffron-400">{bookings.length}</p>
+          </div>
+          <div className="flex justify-between items-center border-t border-saffron-400/5 pt-3 mt-3 text-xs">
+            <span className="text-white/50 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-rust-500 animate-pulse" /> {pendingBookings} Chờ Hỗ Trợ
+            </span>
+            <button onClick={() => setActiveTab('bookings')} className="text-saffron-400 font-bold hover:underline cursor-pointer">Chi tiết →</button>
+          </div>
+        </div>
+
+        {/* Articles Stat Card */}
+        <div className="dao-panel p-6 rounded-xl border border-saffron-400/10 bg-dao-800/20 flex flex-col justify-between h-40">
+          <div>
+            <h3 className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-2">Thư Viện Tư Liệu</h3>
+            <p className="text-4xl font-serif text-saffron-400">{articles.length}</p>
+          </div>
+          <div className="flex justify-between items-center border-t border-saffron-400/5 pt-3 mt-3 text-xs">
+            <span className="text-white/50">{publishedArticles} Đăng tải / {draftArticles} Nháp</span>
+            <button onClick={() => setActiveTab('articles')} className="text-saffron-400 font-bold hover:underline cursor-pointer">Chi tiết →</button>
+          </div>
+        </div>
+
+        {/* Services & Gifts Stat Card */}
+        <div className="dao-panel p-6 rounded-xl border border-saffron-400/10 bg-dao-800/20 flex flex-col justify-between h-40">
+          <div>
+            <h3 className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-2">Hành Trang & Gieo Duyên</h3>
+            <p className="text-4xl font-serif text-saffron-400">{(services?.length || 0) + (gifts?.length || 0)}</p>
+          </div>
+          <div className="flex justify-between items-center border-t border-saffron-400/5 pt-3 mt-3 text-xs">
+            <span className="text-white/50">{services?.length || 0} Dịch vụ / {gifts?.length || 0} Quà tặng</span>
+            <button onClick={() => setActiveTab('services')} className="text-saffron-400 font-bold hover:underline cursor-pointer">Chi tiết →</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Action Area */}
+      <div className="dao-panel p-6 border border-saffron-400/10 rounded-xl bg-dao-800/10 text-left">
+        <h3 className="text-xs uppercase tracking-widest font-bold text-saffron-400 mb-4 flex items-center gap-2">
+          <Sparkles className="w-4 h-4" /> Hành Động Nhanh
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <button
+            onClick={() => setActiveTab('articles')}
+            className="p-4 bg-dao-900 border border-saffron-400/10 hover:border-saffron-400/40 rounded-lg text-xs font-bold text-white hover:text-saffron-400 transition-all flex flex-col gap-1 text-left cursor-pointer animate-duration-500"
+          >
+            <span className="text-saffron-400">✦ Đăng bài viết mới</span>
+            <span className="text-[10px] text-white/40 font-light">Mở rộng thư viện tri thức tâm linh</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('bookings')}
+            className="p-4 bg-dao-900 border border-saffron-400/10 hover:border-saffron-400/40 rounded-lg text-xs font-bold text-white hover:text-saffron-400 transition-all flex flex-col gap-1 text-left cursor-pointer animate-duration-500"
+          >
+            <span className="text-saffron-400">✦ Xem yêu cầu mới nhất</span>
+            <span className="text-[10px] text-white/40 font-light">Liên hệ trực tiếp trợ tín khách hữu duyên</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('categories')}
+            className="p-4 bg-dao-900 border border-saffron-400/10 hover:border-saffron-400/40 rounded-lg text-xs font-bold text-white hover:text-saffron-400 transition-all flex flex-col gap-1 text-left cursor-pointer animate-duration-500"
+          >
+            <span className="text-saffron-400">✦ Thiết lập chuyên mục</span>
+            <span className="text-[10px] text-white/40 font-light">Tạo mới phân loại bài viết khoa học</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
 function ArticlesTab() {
-  const { articles, addArticle, updateArticle, deleteArticle } = useAppContext();
+  const { articles, addArticle, updateArticle, deleteArticle, refreshData } = useAppContext();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({ title: '', category: '', excerpt: '', date: '', readTime: '', author: '', content: '' });
+
+  const filteredArticles = articles.filter(item => 
+    (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.category || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.excerpt || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.author || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleEdit = (item: any) => {
     setEditingId(item.id);
@@ -389,42 +563,18 @@ function ArticlesTab() {
     });
   };
 
-  const handleDelete = (id: string) => {
-    deleteArticle(id);
+  const handleDelete = async (id: string) => {
+    if (confirm('Bạn hữu thực sự muốn gỡ bỏ tư liệu này?')) {
+      await deleteArticle(id);
+      await refreshData();
+    }
   };
-
-  const handleSave = () => {
-    const finalDate = formData.date.trim() || new Date().toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    }).replace('tháng', 'Tháng');
-
-    const dataToSave = {
-      ...formData,
-      date: finalDate,
-      author: formData.author.trim() || 'Chăm Rốch Thi',
-      content: formData.content.trim() || `Nội dung chi tiết cho bài viết "${formData.title}" đang được hoàn thiện. Trân trọng cảm ơn quý bạn hữu đã quan tâm và theo dõi.`
-    };
-
-    if (isAdding) addArticle(dataToSave);
-    else if (editingId) updateArticle(editingId, dataToSave);
-    setIsAdding(false);
-    setEditingId(null);
-  };
-
-  const filteredArticles = articles.filter(item => 
-    (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.category || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.excerpt || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.author || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   if (isAdding || editingId) {
     const initialArticle = isAdding ? null : articles.find(a => a.id === editingId) || null;
     return (
       <div className="space-y-6">
-        <button onClick={() => { setIsAdding(false); setEditingId(null); }} className="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
+        <button onClick={() => { setIsAdding(false); setEditingId(null); }} className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer">
           <ArrowLeft className="w-4 h-4" /> Quay lại
         </button>
         <div className="bg-dao-800/50 p-6 rounded-lg border border-saffron-400/10 space-y-4 max-w-5xl">
@@ -432,9 +582,10 @@ function ArticlesTab() {
           <ArticleEditor
             initial={initialArticle}
             onCancel={() => { setIsAdding(false); setEditingId(null); }}
-            onSaved={() => { 
-              // simple refresh to pick up new data
-              window.location.reload();
+            onSaved={async () => { 
+              await refreshData();
+              setIsAdding(false);
+              setEditingId(null);
             }}
           />
         </div>
@@ -458,7 +609,8 @@ function ArticlesTab() {
       </div>
 
       <div className="bg-dao-800/50 border border-saffron-400/10 rounded-lg overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-saffron-400/20">
+          <table className="w-full text-left border-collapse min-w-[850px]">
           <thead>
             <tr className="border-b border-saffron-400/10 bg-dao-800">
               <th className="py-3 px-4 text-xs uppercase tracking-widest text-white/50 font-medium w-2/5">Tiêu đề / Tóm tắt</th>
@@ -505,13 +657,14 @@ function ArticlesTab() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </motion.div>
   );
 }
 
 function ServicesTab() {
-  const { services, addService, updateService, deleteService } = useAppContext();
+  const { services, addService, updateService, deleteService, refreshData } = useAppContext();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ title: '', subtitle: '', hanzi: '', description: '', features: '', iconName: '', color: 'text-saffron-400', borderColor: 'border-saffron-400/30', bgDecor: 'bg-saffron-400/5' });
@@ -522,14 +675,18 @@ function ServicesTab() {
     setFormData({ ...item, features: item.features.join('\\n') });
   };
 
-  const handleDelete = (id: string) => {
-    deleteService(id);
+  const handleDelete = async (id: string) => {
+    if (confirm('Bạn hữu thực sự muốn gỡ bỏ dịch vụ này?')) {
+      await deleteService(id);
+      await refreshData();
+    }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const dataToSave = { ...formData, features: formData.features.split('\\n').map(f => f.trim()).filter(Boolean) };
-    if (isAdding) addService(dataToSave);
-    else if (editingId) updateService(editingId, dataToSave);
+    if (isAdding) await addService(dataToSave);
+    else if (editingId) await updateService(editingId, dataToSave);
+    await refreshData();
     setIsAdding(false);
     setEditingId(null);
   };
@@ -568,7 +725,8 @@ function ServicesTab() {
       </div>
 
       <div className="bg-dao-800/50 border border-saffron-400/10 rounded-lg overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-saffron-400/20">
+          <table className="w-full text-left border-collapse min-w-[650px]">
           <thead>
             <tr className="border-b border-saffron-400/10 bg-dao-800">
               <th className="py-3 px-4 text-xs uppercase tracking-widest text-white/50 font-medium w-1/2">Thông tin dịch vụ</th>
@@ -598,13 +756,14 @@ function ServicesTab() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </motion.div>
   );
 }
 
 function GiftsTab() {
-  const { gifts, addGift, updateGift, deleteGift } = useAppContext();
+  const { gifts, addGift, updateGift, deleteGift, refreshData } = useAppContext();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ title: '', desc: '', type: 'newcomer', iconName: '', color: 'text-jade-400', bg: 'bg-jade-400/10' });
@@ -615,13 +774,17 @@ function GiftsTab() {
     setFormData(item);
   };
 
-  const handleDelete = (id: string) => {
-    deleteGift(id);
+  const handleDelete = async (id: string) => {
+    if (confirm('Bạn hữu thực sự muốn gỡ bỏ phần quà này?')) {
+      await deleteGift(id);
+      await refreshData();
+    }
   };
 
-  const handleSave = () => {
-    if (isAdding) addGift(formData);
-    else if (editingId) updateGift(editingId, formData);
+  const handleSave = async () => {
+    if (isAdding) await addGift(formData);
+    else if (editingId) await updateGift(editingId, formData);
+    await refreshData();
     setIsAdding(false);
     setEditingId(null);
   };
@@ -659,7 +822,8 @@ function GiftsTab() {
       </div>
 
       <div className="bg-dao-800/50 border border-saffron-400/10 rounded-lg overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-saffron-400/20">
+          <table className="w-full text-left border-collapse min-w-[650px]">
           <thead>
             <tr className="border-b border-saffron-400/10 bg-dao-800">
               <th className="py-3 px-4 text-xs uppercase tracking-widest text-white/50 font-medium">Tên quà</th>
@@ -690,13 +854,14 @@ function GiftsTab() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </motion.div>
   );
 }
 
 function TestimonialsTab() {
-  const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial } = useAppContext();
+  const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial, refreshData } = useAppContext();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ name: '', service: '', content: '' });
@@ -707,13 +872,17 @@ function TestimonialsTab() {
     setFormData(item);
   };
 
-  const handleDelete = (id: string) => {
-    deleteTestimonial(id);
+  const handleDelete = async (id: string) => {
+    if (confirm('Bạn hữu thực sự muốn gỡ bỏ phản hồi này?')) {
+      await deleteTestimonial(id);
+      await refreshData();
+    }
   };
 
-  const handleSave = () => {
-    if (isAdding) addTestimonial(formData);
-    else if (editingId) updateTestimonial(editingId, formData);
+  const handleSave = async () => {
+    if (isAdding) await addTestimonial(formData);
+    else if (editingId) await updateTestimonial(editingId, formData);
+    await refreshData();
     setIsAdding(false);
     setEditingId(null);
   };
@@ -747,7 +916,8 @@ function TestimonialsTab() {
       </div>
 
       <div className="bg-dao-800/50 border border-saffron-400/10 rounded-lg overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-saffron-400/20">
+          <table className="w-full text-left border-collapse min-w-[650px]">
           <thead>
             <tr className="border-b border-saffron-400/10 bg-dao-800">
               <th className="py-3 px-4 text-xs uppercase tracking-widest text-white/50 font-medium">Tên / Pháp danh</th>
@@ -777,13 +947,14 @@ function TestimonialsTab() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </motion.div>
   );
 }
 
 function MembersTab() {
-  const { members, addMember, updateMember, deleteMember } = useAppContext();
+  const { members, addMember, updateMember, deleteMember, refreshData } = useAppContext();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -795,11 +966,14 @@ function MembersTab() {
     setFormData(item);
   };
 
-  const handleDelete = (id: string) => {
-    deleteMember(id);
+  const handleDelete = async (id: string) => {
+    if (confirm('Bạn hữu thực sự muốn gỡ bỏ thành viên này?')) {
+      await deleteMember(id);
+      await refreshData();
+    }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name.trim()) {
       alert('Vui lòng điền Họ tên / Pháp danh');
       return;
@@ -815,8 +989,9 @@ function MembersTab() {
       joinDate: finalJoinDate
     };
 
-    if (isAdding) addMember(dataToSave);
-    else if (editingId) updateMember(editingId, dataToSave);
+    if (isAdding) await addMember(dataToSave);
+    else if (editingId) await updateMember(editingId, dataToSave);
+    await refreshData();
     setIsAdding(false);
     setEditingId(null);
   };
@@ -878,7 +1053,8 @@ function MembersTab() {
       </div>
 
       <div className="bg-dao-800/50 border border-saffron-400/10 rounded-lg overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-saffron-400/20">
+          <table className="w-full text-left border-collapse min-w-[850px]">
           <thead>
             <tr className="border-b border-saffron-400/10 bg-dao-800">
               <th className="py-3 px-4 text-xs uppercase tracking-widest text-white/50 font-medium col-span-2">Họ tên / Pháp danh</th>
@@ -919,6 +1095,7 @@ function MembersTab() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </motion.div>
   );
@@ -1006,7 +1183,8 @@ function BookingsTab({ bookings }: { bookings: any[] }) {
       </div>
 
       <div className="bg-dao-800/50 border border-saffron-400/10 rounded-lg overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-saffron-400/20">
+          <table className="w-full text-left border-collapse min-w-[950px]">
           <thead>
             <tr className="border-b border-saffron-400/10 bg-dao-800">
               <th className="py-3 px-4 text-xs uppercase tracking-widest text-white/50 font-medium">Khách Hữu Duyên</th>
@@ -1076,6 +1254,7 @@ function BookingsTab({ bookings }: { bookings: any[] }) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </motion.div>
   );

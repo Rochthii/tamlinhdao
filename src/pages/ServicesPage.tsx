@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { Sparkles, Check, ArrowRight, Compass, Flower2, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import useSEO from '../hooks/useSEO';
 
 const iconsMapping: Record<string, any> = {
   Compass, Flower2, Flame, Sparkles
@@ -11,10 +12,57 @@ const iconsMapping: Record<string, any> = {
 export default function ServicesPage() {
   const { services } = useAppContext();
 
-  useEffect(() => {
-    document.title = "Dịch Vụ Tham Vấn Tâm Linh & Luận Mệnh | ĐẠO";
-    // Cập nhật meta description thực tế tại đây nếu cần
-  }, []);
+  useSEO({
+    title: 'Hỗ Trợ & Dịch Vụ Tham Vấn Tâm Linh, Luận Mệnh',
+    description: 'Nơi hội tụ triết lý Cổ học Phương Đông và Phật giáo, mở ra các giải pháp chuyên sâu: Luận Bát Tự vận mệnh, Tham Vấn Chữa Lành Tâm Linh, Hỗ Trợ Thiết Lập Nghi Lễ cầu an gia đạo.',
+    canonical: 'https://dao-spiritual.com/ho-tro',
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Tham Vấn Tâm Linh & Luận Mệnh Cổ Học",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "ĐẠO Quán",
+        "image": "https://dao-spiritual.com/logo-og.jpg",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Hà Nội",
+          "addressCountry": "VN"
+        }
+      },
+      "areaServed": "VN",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Danh mục hỗ trợ",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Luận Vận Mệnh (Bát Tự / Kinh Dịch)",
+              "description": "Giải mã phước nghiệp và định hướng cát hung."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Tham Vấn Tâm Linh (Chữa Lành & Chuyển Hóa)",
+              "description": "Tháo gỡ bế tắc nội tâm dựa trên Luật Nhân Quả và Vô Vi."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Hỗ trợ Nghi Lễ (Cầu An & Gieo Phước)",
+              "description": "Thiết lập bàn thờ gia tiên, nghi thức cầu an thanh tịnh."
+            }
+          }
+        ]
+      }
+    }
+  });
 
   return (
     <div className="py-24 px-4 sm:px-6 lg:px-8 relative z-10 min-h-screen bg-dao-900">

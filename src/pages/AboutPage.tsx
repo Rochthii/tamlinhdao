@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { Leaf, Wind, Droplets, Compass } from 'lucide-react';
+import useSEO from '../hooks/useSEO';
 
 const philosophy = [
   {
@@ -30,9 +31,31 @@ const philosophy = [
 ];
 
 export default function AboutPage() {
-  useEffect(() => {
-    document.title = "Về Chúng Tôi | Triết Lý Vô Vi & Nhân Quả | ĐẠO";
-  }, []);
+  useSEO({
+    title: 'Về Chúng Tôi | Triết Lý Vô Vi & Nhân Quả',
+    description: 'Tìm hiểu về nguồn gốc của ĐẠO, triết lý Vô Vi, Luật Nhân Quả, Trung Đạo và sứ mệnh phụng sự dẫn dắt tâm linh của Minh Sư Chăm Rốch Thi cùng các đạo hữu.',
+    canonical: 'https://dao-spiritual.com/gioi-thieu',
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "Giới thiệu về ĐẠO",
+      "description": "Nơi hội tụ triết lý Đạo Giáo, Phật Pháp và Cổ học phương Đông giúp tìm lại sự tĩnh tại nội tâm.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "ĐẠO Quán",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://dao-spiritual.com/logo-og.jpg"
+        }
+      },
+      "mainEntity": {
+        "@type": "Person",
+        "name": "Chăm Rốch Thi",
+        "jobTitle": "Người Sáng Lập & Quản Trị Viên",
+        "description": "Nhà nghiên cứu cổ học Phương Đông, người sáng lập và chia sẻ triết lý Vô Vi, Tứ Trụ Bát Tự."
+      }
+    }
+  });
 
   return (
     <div className="py-24 px-4 sm:px-6 lg:px-8 relative z-10 min-h-screen bg-dao-900">

@@ -33,37 +33,14 @@ export default function Contact() {
         }]);
         
         if (error) throw error;
-      } else {
-        throw new Error('Supabase not configured');
-      }
-
-      setIsSuccess(true);
-      setFormData({ name: '', dob: '', phone: '', service: 'Đăng ký xem bài Tarot', message: '' });
-    } catch (error) {
-      console.error('Lưu vào Supabase thất bại, chuyển sang lưu local:', error);
-      // Fallback: save booking locally so it can be synced later
-      try {
-        const offlineKey = 'dao_bookings_offline';
-        const saved = JSON.parse(localStorage.getItem(offlineKey) || '[]');
-        const offlineEntry = {
-          id: Date.now().toString(),
-          name: formData.name,
-          dob: formData.dob || '',
-          phone: formData.phone,
-          message: `[Dịch vụ mong muốn: ${formData.service}]\n\n${formData.message || ''}`,
-          createdAt: new Date().toISOString(),
-          status: 'pending-offline'
-        };
-        saved.unshift(offlineEntry);
-        localStorage.setItem(offlineKey, JSON.stringify(saved));
-
-        // Show success-like feedback and clear form
         setIsSuccess(true);
         setFormData({ name: '', dob: '', phone: '', service: 'Đăng ký xem bài Tarot', message: '' });
-        setErrorMsg('Mạng tạm thời. Yêu cầu đã lưu tạm thời và sẽ được gửi khi có kết nối.');
-      } catch (e) {
-        setErrorMsg('Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau.');
+      } else {
+        throw new Error('Hệ thống cơ sở dữ liệu chưa được cấu hình. Vui lòng quay lại sau.');
       }
+    } catch (error: any) {
+      console.error('Lưu vào Supabase thất bại:', error);
+      setErrorMsg(error?.message || 'Có lỗi xảy ra khi gửi thông tin. Vui lòng thử lại sau hoặc kiểm tra kết nối mạng của bạn.');
     } finally {
       setIsSubmitting(false);
     }

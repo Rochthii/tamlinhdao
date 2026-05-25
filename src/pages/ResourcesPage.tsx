@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { fetchComments, postComment, fetchArticleStats, incrementArticleStat } from '../lib/supabase';
+import useSEO from '../hooks/useSEO';
 
 // Helper to convert Vietnamese human dates like "12 Tháng 4, 2024" to JS Date objects
 function parseVietnameseDate(dateStr: string): Date {
@@ -220,47 +221,44 @@ export default function ResourcesPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.search]);
 
-  // SEO Optimization: Update Title, Description and JSON-LD
+  // Dynamic SEO Setup using the unified useSEO hook
+  const seoTitle = currentArticle 
+    ? `${currentArticle.title} | ĐẠO` 
+    : "Tư Liệu Tâm Linh & Triết Lý | ĐẠO Quán";
+    
+  const seoDesc = currentArticle 
+    ? currentArticle.excerpt 
+    : "Nhận lấy sự tĩnh lặng tối giản và sáng suốt từ cổ nhân qua các tác phẩm nghị luận tâm thức của chúng tôi. Tìm kiếm, giải sầu và buông xả vướng mắc.";
+
+  const seoCanonical = currentArticle
+    ? `https://dao-spiritual.com/tu-lieu?id=${currentArticle.id}`
+    : 'https://dao-spiritual.com/tu-lieu';
+
+  const seoJsonLd = currentArticle ? {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": currentArticle.title,
+    "description": currentArticle.excerpt,
+    "author": { "@type": "Person", "name": currentArticle.author },
+    "datePublished": parseVietnameseDate(currentArticle.date).toISOString(),
+    "image": "https://dao-spiritual.com/logo-og.jpg"
+  } : {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Thư Viện Tư Liệu Cổ Học & Tâm Linh",
+    "description": "Nghị luận tâm thức về Vô Vi, Đạo Đức Kinh, Nhân Quả và Thiền định."
+  };
+
+  useSEO({
+    title: seoTitle,
+    description: seoDesc,
+    canonical: seoCanonical,
+    ogType: currentArticle ? 'article' : 'website',
+    jsonLd: seoJsonLd
+  });
+
+  // Load stats from Supabase directly (no localStorage fallback)
   useEffect(() => {
-    if (currentArticle) {
-      document.title = `${currentArticle.title} | ĐẠO`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) metaDesc.setAttribute('content', currentArticle.excerpt || '');
-
-      // Thêm dữ liệu cấu trúc (Structured Data) cho Article
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.id = 'article-jsonld';
-      script.innerHTML = JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": currentArticle.title,
-        "description": currentArticle.excerpt,
-        "author": { "@type": "Person", "name": currentArticle.author },
-        "datePublished": parseVietnameseDate(currentArticle.date).toISOString(),
-        "image": "https://dao-spiritual.com/logo-og.jpg" // Thay bằng URL ảnh thực tế
-      });
-      document.head.appendChild(script);
-      return () => {
-        const oldScript = document.getElementById('article-jsonld');
-        if (oldScript) oldScript.remove();
-      };
-    } else {
-      document.title = "Tư Liệu Tâm Linh & Triết Lý | ĐẠO";
-    }
-  }, [currentArticle]);
-
-  // Load persistent stats and try to hydrate from Supabase
-  useEffect(() => {
-    const storedLikes = localStorage.getItem('dao_article_likes');
-    if (storedLikes) {
-      setArticleLikes(JSON.parse(storedLikes));
-    }
-    const storedBookmarks = localStorage.getItem('dao_article_bookmarks');
-    if (storedBookmarks) {
-      setIsBookmarked(JSON.parse(storedBookmarks));
-    }
-
     (async () => {
       try {
         const ids = articles.map(a => a.id).filter(Boolean) as string[];
@@ -271,95 +269,91 @@ export default function ResourcesPage() {
         stats.forEach((s: any) => {
           likesMap[s.article_id] = s.likes || 0;
         });
-        setArticleLikes(prev => ({ ...likesMap, ...prev }));
+        setArticleLikes(likesMap);
       } catch (e) {
-        // ignore — keep local state
+        console.error('Error loading article stats:', e);
       }
     })();
   }, [articles]);
 
-  // Comments loading based on active article
+  // Comments loading based on active article directly from Supabase
   useEffect(() => {
     if (!selectedArticleId) return;
-    const key = `dao_comments_${selectedArticleId}`;
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      setArticleComments(prev => ({
-        ...prev,
-        [selectedArticleId]: JSON.parse(stored)
-      }));
-    } else {
-      // populate with one pre-existing comment for high credibility
-      const sampleComments = [
-        {
-          name: 'Đạo Hữu Minh An',
-          content: 'Bài viết này rất có ích cho tôi tâm đắc nhất phần buông xả kiệt quệ và chú tâm nhịp thở. Giữa xã hội hiện tại thật khó tìm được nơi gieo duyên thanh tịnh như thế này.',
-          date: 'Mới đây',
-          mood: 'Tỉnh thức ✦'
-        },
-        {
-          name: 'Phật Tử Diệu Từ',
-          content: 'Triết lý sâu sắc vô cùng, cách viết dẫn giải mộc mạc dễ đi sâu vào tâm khảm người trẻ như tôi. Xin cảm ơn quý Thầy và Minh Sư sáng lập!',
-          date: 'Vừa xong',
-          mood: 'Tri ân ✦'
-        }
-      ];
-      localStorage.setItem(key, JSON.stringify(sampleComments));
-      setArticleComments(prev => ({
-        ...prev,
-        [selectedArticleId]: sampleComments
-      }));
-    }
 
-    // Try to hydrate comments from Supabase if available
     (async () => {
       try {
         const remote = await fetchComments(selectedArticleId);
         if (remote && Array.isArray(remote) && remote.length) {
-          const transformed = remote.map((c: any) => ({ name: c.name, content: c.content, date: new Date(c.created_at).toLocaleDateString('vi-VN'), mood: c.mood || '' }));
+          const transformed = remote.map((c: any) => ({ 
+            name: c.name, 
+            content: c.content, 
+            date: new Date(c.created_at).toLocaleDateString('vi-VN'), 
+            mood: c.mood || '' 
+          }));
           setArticleComments(prev => ({ ...prev, [selectedArticleId]: transformed }));
-          localStorage.setItem(key, JSON.stringify(transformed));
+        } else {
+          // Default credible starting comments in state if DB has none (in-memory only)
+          const sampleComments = [
+            {
+              name: 'Đạo Hữu Minh An',
+              content: 'Bài viết này rất có ích cho tôi tâm đắc nhất phần buông xả kiệt quệ và chú tâm nhịp thở. Giữa xã hội hiện tại thật khó tìm được nơi gieo duyên thanh tịnh như thế này.',
+              date: 'Mới đây',
+              mood: 'Tỉnh thức ✦'
+            },
+            {
+              name: 'Phật Tử Diệu Từ',
+              content: 'Triết lý sâu sắc vô cùng, cách viết dẫn giải mộc mạc dễ đi sâu vào tâm khảm người trẻ như tôi. Xin cảm ơn quý Thầy và Minh Sư sáng lập!',
+              date: 'Vừa xong',
+              mood: 'Tri ân ✦'
+            }
+          ];
+          setArticleComments(prev => ({ ...prev, [selectedArticleId]: sampleComments }));
         }
       } catch (e) {
-        // ignore
+        console.error('Error fetching comments:', e);
       }
     })();
   }, [selectedArticleId]);
 
-  // Handle Likes
+  // Handle Likes (optimistic update with fallback)
   const handleLikeArticle = (id: string) => {
-    // optimistic UI update
-    const newLikes = { ...articleLikes, [id]: (articleLikes[id] || 0) + 1 };
+    const originalLikes = articleLikes[id] || 0;
+    const newLikes = { ...articleLikes, [id]: originalLikes + 1 };
     setArticleLikes(newLikes);
-    localStorage.setItem('dao_article_likes', JSON.stringify(newLikes));
-    // send to Supabase (best-effort)
+    
     (async () => {
       try {
-        await incrementArticleStat(id, 'likes');
+        const res = await incrementArticleStat(id, 'likes');
+        if (res && res.likes) {
+          setArticleLikes(prev => ({ ...prev, [id]: res.likes }));
+        }
       } catch (e) {
-        // ignore, kept in local storage
+        console.error('Like failed, rollback', e);
+        setArticleLikes(prev => ({ ...prev, [id]: originalLikes }));
       }
     })();
   };
 
-  // Handle Bookmarks
+  // Handle Bookmarks (in-memory state update, no local storage)
   const handleToggleBookmark = (id: string) => {
-    const newBook = { ...isBookmarked, [id]: !isBookmarked[id] };
-    setIsBookmarked(newBook);
-    localStorage.setItem('dao_article_bookmarks', JSON.stringify(newBook));
+    const newVal = !isBookmarked[id];
+    setIsBookmarked(prev => ({ ...prev, [id]: newVal }));
 
-    // best-effort increment bookmarks count
     (async () => {
       try {
-        if (newBook[id]) await incrementArticleStat(id, 'bookmarks');
-      } catch (e) {}
+        if (newVal) {
+          await incrementArticleStat(id, 'bookmarks');
+        }
+      } catch (e) {
+        console.error('Bookmark increment failed:', e);
+      }
     })();
 
-    setShareToastText(newBook[id] ? "Đã lưu trữ bài viết vào sổ tay tu tập thành công!" : "Đã gỡ bài viết ra khỏi sổ tay tu tập.");
+    setShareToastText(newVal ? "Đã lưu trữ bài viết vào sổ tay tu tập thành công!" : "Đã gỡ bài viết ra khỏi sổ tay tu tập.");
     setTimeout(() => setShareToastText(''), 3000);
   };
 
-  // Copy article link simulation
+  // Copy article link
   const handleShareArticle = (articleTitle: string) => {
     const fakeUrl = `${window.location.origin}/tu-lieu?id=${encodeURIComponent(selectedArticleId || '')}`;
     navigator.clipboard.writeText(fakeUrl).then(() => {
@@ -370,7 +364,7 @@ export default function ResourcesPage() {
     setTimeout(() => setShareToastText(''), 4000);
   };
 
-  // Submit new reflection comment
+  // Submit new reflection comment (optimistic update with database sync)
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedArticleId || !commentText.trim()) return;
@@ -386,29 +380,48 @@ export default function ResourcesPage() {
       mood: commentMood
     };
 
-    const key = `dao_comments_${selectedArticleId}`;
-    const articleCommentList = articleComments[selectedArticleId] || [];
-    const updated = [newComment, ...articleCommentList];
-
+    // Optimistic UI update
+    const originalComments = articleComments[selectedArticleId] || [];
     setArticleComments(prev => ({
       ...prev,
-      [selectedArticleId]: updated
+      [selectedArticleId]: [newComment, ...originalComments]
     }));
-
-    localStorage.setItem(key, JSON.stringify(updated));
-
-    // send comment to Supabase (best-effort)
-    (async () => {
-      try {
-        await postComment(selectedArticleId, { name: newComment.name, content: newComment.content, mood: newComment.mood });
-      } catch (e) {
-        // keep local fallback
-      }
-    })();
 
     // Reset inputs
     setCommentText('');
     setCommentName('');
+
+    (async () => {
+      try {
+        const res = await postComment(selectedArticleId, { 
+          name: newComment.name, 
+          content: newComment.content, 
+          mood: newComment.mood 
+        });
+        if (res) {
+          // Hydrate with official date from DB
+          const officialComment = {
+            name: res.name,
+            content: res.content,
+            date: new Date(res.created_at).toLocaleDateString('vi-VN'),
+            mood: res.mood || ''
+          };
+          setArticleComments(prev => ({
+            ...prev,
+            [selectedArticleId]: [officialComment, ...originalComments]
+          }));
+        }
+      } catch (e) {
+        console.error('Post comment failed, rolling back:', e);
+        setArticleComments(prev => ({
+          ...prev,
+          [selectedArticleId]: originalComments
+        }));
+        setShareToastText("Gửi suy ngẫm thất bại. Vui lòng kiểm tra kết nối.");
+        setTimeout(() => setShareToastText(''), 3500);
+      }
+    })();
+
     setShareToastText("Gửi suy ngẫm thành công! Cảm ơn bạn hữu đã chia sẻ chánh kiến.");
     setTimeout(() => setShareToastText(''), 3500);
   };
@@ -416,7 +429,6 @@ export default function ResourcesPage() {
   const handleDeleteComment = (commentIndex: number) => {
     if (!selectedArticleId) return;
 
-    const key = `dao_comments_${selectedArticleId}`;
     const currentComments = articleComments[selectedArticleId] || [];
     const updated = currentComments.filter((_, idx) => idx !== commentIndex);
 
@@ -425,7 +437,6 @@ export default function ResourcesPage() {
       [selectedArticleId]: updated
     }));
 
-    localStorage.setItem(key, JSON.stringify(updated));
     setShareToastText("Đã gỡ lời nhắn của bạn.");
     setTimeout(() => setShareToastText(''), 3500);
   };
@@ -845,8 +856,8 @@ export default function ResourcesPage() {
                 </button>
 
                 {/* Elder-friendly font resizing toolbar */}
-                <div className="flex items-center gap-2 bg-dao-800/75 px-3 py-1.5 rounded-full border border-saffron-400/10">
-                  <span className="text-[10px] text-white/40 uppercase tracking-wide mr-2 font-mono">Cỡ chữ:</span>
+                <div className="flex flex-wrap items-center gap-1.5 bg-dao-800/75 px-3 py-1.5 rounded-full border border-saffron-400/10">
+                  <span className="text-[10px] text-white/40 uppercase tracking-wide mr-1.5 font-mono hidden sm:inline">Cỡ chữ:</span>
                   <button 
                     onClick={() => setReaderFontSize('sm')} 
                     className={`px-2 py-0.5 text-xs rounded transition-all cursor-pointer ${readerFontSize === 'sm' ? 'bg-saffron-400 text-dao-900 font-bold' : 'text-white/60 hover:text-white'}`}

@@ -11,28 +11,19 @@ export default function Footer() {
         <div className="mb-2 md:mb-0 text-center md:text-left flex items-center gap-4 flex-wrap justify-center md:justify-start">
           <span>© {new Date().getFullYear()} ĐẠO • Tu Dưỡng Tâm Tính</span>
           <span className="w-px h-3 bg-[#2d241c]/20 hidden md:block"></span>
-          <Link to="/admin" className="hover:text-saffron-400 transition-colors hidden md:block">Quản Trị</Link>
-          <span className="w-px h-3 bg-[#2d241c]/20 hidden md:block"></span>
+          <span className="text-saffron-500 font-bold bg-[#ffded7]/30 px-2 py-0.5 rounded">Phát triển bởi: CRT</span>
+        </div>
+        <div className="flex flex-wrap gap-4 md:gap-6 justify-center">
+          <Link to="/admin" className="hover:text-saffron-400 transition-colors">Quản Trị</Link>
           <button 
             onClick={() => setIsOpen(true)}
             className="hover:text-saffron-400 transition-colors cursor-pointer uppercase tracking-[0.2em]"
           >
             Điều Khoản & Bảo Mật
           </button>
-          <span className="w-px h-3 bg-[#2d241c]/20 hidden md:block"></span>
-          <span className="text-saffron-500 font-bold bg-[#ffded7]/30 px-2 py-0.5 rounded">Phát triển bởi: CRT</span>
-        </div>
-        <div className="flex gap-4 md:gap-6">
           <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="hover:text-saffron-400 transition-colors">Facebook</a>
           <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="hover:text-saffron-400 transition-colors">Instagram</a>
           <a href="https://www.facebook.com/profile.php?id=61578175196192&locale=vi_VN" target="_blank" rel="noopener noreferrer" className="hover:text-saffron-400 transition-colors">Threads</a>
-          <button 
-            onClick={() => setIsOpen(true)}
-            className="hover:text-saffron-400 transition-colors block md:hidden cursor-pointer"
-          >
-            Điều Khoản & Bảo Mật
-          </button>
-          <Link to="/admin" className="hover:text-saffron-400 transition-colors block md:hidden">Quản Trị</Link>
         </div>
       </footer>
 

@@ -287,7 +287,7 @@ const initialMembers = [
   }
 ];
 
-export type ArticleType = typeof initialArticles[0];
+export type ArticleType = typeof initialArticles[0] & { published?: boolean; published_at?: any };
 export type ServiceType = typeof initialServices[0];
 export type GiftType = typeof initialGifts[0];
 export type TestimonialType = typeof initialTestimonials[0];
@@ -314,6 +314,7 @@ interface AppContextType {
   addMember: (m: Omit<MemberType, 'id'>) => void;
   updateMember: (id: string, m: Omit<MemberType, 'id'>) => void;
   deleteMember: (id: string) => void;
+  refreshData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -325,7 +326,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [testimonials, setTestimonials] = useState<TestimonialType[]>(initialTestimonials);
   const [members, setMembers] = useState<MemberType[]>(initialMembers);
 
-  // Load from Supabase when available, otherwise fallback to localStorage
+  // Load from Supabase directly
   useEffect(() => {
     const load = async () => {
       if (supabase) {
@@ -347,30 +348,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         } catch (err) {
           console.error('Error loading from Supabase:', err);
         }
-      } else {
-        const savedArticles = localStorage.getItem('dao_articles');
-        if (savedArticles) setArticles(JSON.parse(savedArticles));
-
-        const savedServices = localStorage.getItem('dao_services');
-        if (savedServices) setServices(JSON.parse(savedServices));
-
-        const savedGifts = localStorage.getItem('dao_gifts');
-        if (savedGifts) setGifts(JSON.parse(savedGifts));
-
-        const savedTestimonials = localStorage.getItem('dao_testimonials');
-        if (savedTestimonials) setTestimonials(JSON.parse(savedTestimonials));
-
-        const savedMembers = localStorage.getItem('dao_members');
-        if (savedMembers) setMembers(JSON.parse(savedMembers));
       }
     };
     load();
   }, []);
-
-  // Fallback persistence to localStorage when Supabase not configured
-  const saveState = (key: string, data: any) => {
-    if (!supabase) localStorage.setItem(key, JSON.stringify(data));
-  };
 
   // Articles CRUD
   const addArticle = async (a: Omit<ArticleType, 'id'> & { published?: boolean }) => {
@@ -393,9 +374,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('addArticle supabase error', err);
       }
     } else {
-      const newData = [{ ...a, id: Date.now().toString() }, ...articles];
-      setArticles(newData);
-      saveState('dao_articles', newData);
+      setArticles(prev => [{ ...a, id: Date.now().toString() }, ...prev]);
     }
   };
 
@@ -417,9 +396,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('updateArticle supabase error', err);
       }
     } else {
-      const newData = articles.map(item => item.id === id ? { ...a, id } : item);
-      setArticles(newData);
-      saveState('dao_articles', newData);
+      setArticles(prev => prev.map(item => item.id === id ? { ...a, id } : item));
     }
   };
 
@@ -433,9 +410,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('deleteArticle supabase error', err);
       }
     } else {
-      const newData = articles.filter(item => item.id !== id);
-      setArticles(newData);
-      saveState('dao_articles', newData);
+      setArticles(prev => prev.filter(item => item.id !== id));
     }
   };
 
@@ -450,9 +425,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('addService supabase error', err);
       }
     } else {
-      const newData = [{ ...s, id: Date.now().toString() }, ...services];
-      setServices(newData);
-      saveState('dao_services', newData);
+      setServices(prev => [{ ...s, id: Date.now().toString() }, ...prev]);
     }
   };
 
@@ -466,9 +439,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('updateService supabase error', err);
       }
     } else {
-      const newData = services.map(item => item.id === id ? { ...s, id } : item);
-      setServices(newData);
-      saveState('dao_services', newData);
+      setServices(prev => prev.map(item => item.id === id ? { ...s, id } : item));
     }
   };
 
@@ -482,9 +453,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('deleteService supabase error', err);
       }
     } else {
-      const newData = services.filter(item => item.id !== id);
-      setServices(newData);
-      saveState('dao_services', newData);
+      setServices(prev => prev.filter(item => item.id !== id));
     }
   };
 
@@ -499,9 +468,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('addGift supabase error', err);
       }
     } else {
-      const newData = [{ ...g, id: Date.now().toString() }, ...gifts];
-      setGifts(newData);
-      saveState('dao_gifts', newData);
+      setGifts(prev => [{ ...g, id: Date.now().toString() }, ...prev]);
     }
   };
 
@@ -515,9 +482,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('updateGift supabase error', err);
       }
     } else {
-      const newData = gifts.map(item => item.id === id ? { ...g, id } : item);
-      setGifts(newData);
-      saveState('dao_gifts', newData);
+      setGifts(prev => prev.map(item => item.id === id ? { ...g, id } : item));
     }
   };
 
@@ -531,9 +496,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('deleteGift supabase error', err);
       }
     } else {
-      const newData = gifts.filter(item => item.id !== id);
-      setGifts(newData);
-      saveState('dao_gifts', newData);
+      setGifts(prev => prev.filter(item => item.id !== id));
     }
   };
 
@@ -548,9 +511,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('addTestimonial supabase error', err);
       }
     } else {
-      const newData = [{ ...t, id: Date.now().toString() }, ...testimonials];
-      setTestimonials(newData);
-      saveState('dao_testimonials', newData);
+      setTestimonials(prev => [{ ...t, id: Date.now().toString() }, ...prev]);
     }
   };
 
@@ -564,9 +525,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('updateTestimonial supabase error', err);
       }
     } else {
-      const newData = testimonials.map(item => item.id === id ? { ...t, id } : item);
-      setTestimonials(newData);
-      saveState('dao_testimonials', newData);
+      setTestimonials(prev => prev.map(item => item.id === id ? { ...t, id } : item));
     }
   };
 
@@ -580,9 +539,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('deleteTestimonial supabase error', err);
       }
     } else {
-      const newData = testimonials.filter(item => item.id !== id);
-      setTestimonials(newData);
-      saveState('dao_testimonials', newData);
+      setTestimonials(prev => prev.filter(item => item.id !== id));
     }
   };
 
@@ -597,9 +554,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('addMember supabase error', err);
       }
     } else {
-      const newData = [{ ...m, id: Date.now().toString() }, ...members];
-      setMembers(newData);
-      saveState('dao_members', newData);
+      setMembers(prev => [{ ...m, id: Date.now().toString() }, ...prev]);
     }
   };
 
@@ -613,9 +568,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('updateMember supabase error', err);
       }
     } else {
-      const newData = members.map(item => item.id === id ? { ...m, id } : item);
-      setMembers(newData);
-      saveState('dao_members', newData);
+      setMembers(prev => prev.map(item => item.id === id ? { ...m, id } : item));
     }
   };
 
@@ -629,9 +582,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('deleteMember supabase error', err);
       }
     } else {
-      const newData = members.filter(item => item.id !== id);
-      setMembers(newData);
-      saveState('dao_members', newData);
+      setMembers(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
+  const refreshData = async () => {
+    if (supabase) {
+      try {
+        const { data: arts } = await supabase.from('articles').select('*').order('published_at', { ascending: false });
+        if (arts) setArticles(arts as ArticleType[]);
+
+        const { data: svcs } = await supabase.from('services').select('*').order('created_at', { ascending: false });
+        if (svcs) setServices(svcs as ServiceType[]);
+
+        const { data: gfs } = await supabase.from('gifts').select('*').order('created_at', { ascending: false });
+        if (gfs) setGifts(gfs as GiftType[]);
+
+        const { data: tms } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
+        if (tms) setTestimonials(tms as TestimonialType[]);
+
+        const { data: mbs } = await supabase.from('members').select('*').order('created_at', { ascending: false });
+        if (mbs) setMembers(mbs as MemberType[]);
+      } catch (err) {
+        console.error('Error refreshing data from Supabase:', err);
+      }
     }
   };
 
@@ -642,7 +616,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addService, updateService, deleteService,
       addGift, updateGift, deleteGift,
       addTestimonial, updateTestimonial, deleteTestimonial,
-      addMember, updateMember, deleteMember
+      addMember, updateMember, deleteMember,
+      refreshData
     }}>
       {children}
     </AppContext.Provider>

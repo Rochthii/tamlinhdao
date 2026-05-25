@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Exclude Admin portal
+Disallow: /admin
+Disallow: /admin/*
+
+# Sitemap link
+Sitemap: https://dao-spiritual.com/sitemap.xml

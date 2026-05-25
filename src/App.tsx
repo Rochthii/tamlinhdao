@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -16,13 +16,33 @@ import GiftsSummary from './components/GiftsSummary';
 import TestimonialsSummary from './components/TestimonialsSummary';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import AboutPage from './pages/AboutPage';
-import ResourcesPage from './pages/ResourcesPage';
-import GiftsPage from './pages/GiftsPage';
-import ServicesPage from './pages/ServicesPage';
-import TestimonialsPage from './pages/TestimonialsPage';
 
-import AdminPage from './pages/AdminPage';
+// Lazy load pages for premium performance bundle
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
+const GiftsPage = lazy(() => import('./pages/GiftsPage'));
+const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const TestimonialsPage = lazy(() => import('./pages/TestimonialsPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+
+function GildedLoader() {
+  return (
+    <div className="min-h-[60vh] w-full flex flex-col items-center justify-center bg-dao-900/90 text-white relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-saffron-500 rounded-full blur-[100px] opacity-[0.06]"></div>
+      </div>
+      <div className="relative z-10 flex flex-col items-center gap-6">
+        <div className="w-16 h-16 rounded-full border border-saffron-400/20 bg-dao-800 flex items-center justify-center shadow-[0_0_30px_rgba(214,176,82,0.1)] relative">
+          <div className="w-10 h-10 border-[3px] border-saffron-400/20 border-t-saffron-400 rounded-full animate-spin"></div>
+          <div className="w-4 h-4 bg-gilded rounded-full absolute"></div>
+        </div>
+        <p className="text-[10px] uppercase tracking-[0.25em] text-saffron-400/80 font-bold font-serif animate-pulse">
+          Khởi Tâm Tịnh Lặng...
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function Home() {
   return (
@@ -55,9 +75,11 @@ export default function App() {
 
   if (isAdmin) {
     return (
-      <Routes>
-        <Route path="/admin/*" element={<AdminPage />} />
-      </Routes>
+      <Suspense fallback={<GildedLoader />}>
+        <Routes>
+          <Route path="/admin/*" element={<AdminPage />} />
+        </Routes>
+      </Suspense>
     );
   }
 
@@ -335,14 +357,16 @@ export default function App() {
       </AnimatePresence>
 
       <main className="flex-1 relative z-10 w-full max-w-[1440px] mx-auto">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/gioi-thieu" element={<AboutPage />} />
-          <Route path="/tu-lieu" element={<ResourcesPage />} />
-          <Route path="/ho-tro" element={<ServicesPage />} />
-          <Route path="/gieo-duyen" element={<GiftsPage />} />
-          <Route path="/phan-hoi" element={<TestimonialsPage />} />
-        </Routes>
+        <Suspense fallback={<GildedLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/gioi-thieu" element={<AboutPage />} />
+            <Route path="/tu-lieu" element={<ResourcesPage />} />
+            <Route path="/ho-tro" element={<ServicesPage />} />
+            <Route path="/gieo-duyen" element={<GiftsPage />} />
+            <Route path="/phan-hoi" element={<TestimonialsPage />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </div>

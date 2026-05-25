@@ -1,7 +1,9 @@
+import React from 'react';
 import { motion } from 'motion/react';
 import { Gift, HeartHandshake, Sparkles, Star, Moon, Compass, Leaf, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import useSEO from '../hooks/useSEO';
 
 const iconsMapping: Record<string, any> = {
   Compass, Moon, BookOpen, Sparkles, Leaf, Star
@@ -9,6 +11,12 @@ const iconsMapping: Record<string, any> = {
 
 export default function GiftsPage() {
   const { gifts } = useAppContext();
+
+  useSEO({
+    title: 'Gieo Duyên Quà Tặng | ĐẠO Quán',
+    description: 'Danh sách các phần quà gieo duyên tâm linh từ ĐẠO: Quẻ Dịch đầu tuần, Thông điệp vũ trụ Tarot, Cẩm nang tu tập, Lá bùa trì chú bình an, Vòng trầm đá năng lượng.',
+    canonical: 'https://dao-spiritual.com/gieo-duyen'
+  });
   
   const newcomersGifts = gifts.filter(g => g.type === 'newcomer');
   const loyalGifts = gifts.filter(g => g.type === 'loyal');

@@ -1,9 +1,17 @@
+import React from 'react';
 import { motion } from 'motion/react';
 import { MessageSquare, Star } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import useSEO from '../hooks/useSEO';
 
 export default function TestimonialsPage() {
   const { testimonials } = useAppContext();
+  
+  useSEO({
+    title: 'Phản Hồi & Cảm Nhận Từ Bạn Hữu | ĐẠO',
+    description: 'Những chia sẻ chân thành, khách quan từ các đạo hữu hữu duyên đã trải nghiệm dịch vụ Luận Bát Tự, Xem Tarot và Tham vấn tâm lý chữa lành tại ĐẠO Quán.',
+    canonical: 'https://dao-spiritual.com/phan-hoi'
+  });
   
   return (
     <div className="py-24 px-4 sm:px-6 lg:px-8 relative z-10 min-h-screen bg-dao-900">

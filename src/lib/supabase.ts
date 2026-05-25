@@ -98,18 +98,95 @@ export async function updateArticleWithCategories(articleId: string, article: an
   return art;
 }
 
+// Helper to convert images to highly optimized WebP format client-side
+export async function convertToWebP(file: File, quality = 0.82): Promise<File> {
+  // If it is not a common image format or is a GIF (which we want to keep animated), bypass optimization
+  if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+    return file;
+  }
+  
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        
+        // Max size optimization to prevent ultra large images (max 1600px width/height for web articles)
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1600;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            
+            const originalName = file.name;
+            const lastDotIndex = originalName.lastIndexOf('.');
+            const baseName = lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
+            
+            const webpFile = new File(
+              [blob],
+              `${baseName}.webp`,
+              { type: 'image/webp', lastModified: Date.now() }
+            );
+            resolve(webpFile);
+          },
+          'image/webp',
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+}
+
 // Upload Image to Supabase Storage Helper
 export async function uploadImageToSupabase(file: File) {
   if (!supabase) throw new Error('Cơ sở dữ liệu Supabase chưa được kết nối');
   
-  const fileExt = file.name.split('.').pop();
+  // Optimize to WebP before uploading
+  let optimizedFile = file;
+  try {
+    optimizedFile = await convertToWebP(file);
+  } catch (e) {
+    console.warn('Không thể tối ưu hóa sang WebP, đang tải lên ảnh gốc:', e);
+  }
+  
+  const fileExt = optimizedFile.name.split('.').pop() || 'webp';
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
   const filePath = `articles/${fileName}`;
   
   const { data, error } = await supabase.storage
     .from('articles')
-    .upload(filePath, file, {
-      cacheControl: '3600',
+    .upload(filePath, optimizedFile, {
+      cacheControl: '31536000', // Cache for 1 year since file path has unique timestamps
       upsert: false
     });
     

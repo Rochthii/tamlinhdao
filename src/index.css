@@ -129,3 +129,127 @@ h1, h2, h3, h4, h5, h6 {
   animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Premium dynamic formatting for rich-text articles (HTML output from Word/Editor) */
+.article-content {
+  color: rgba(255, 255, 255, 0.85);
+  text-align: justify;
+}
+
+.article-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+/* Automatic elegant Drop Cap for first paragraph of the article */
+.article-content p:first-of-type::first-letter {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: bold;
+  float: left;
+  line-height: 1;
+  margin-right: 0.75rem;
+  margin-top: 0.25rem;
+  color: var(--color-saffron-400); /* Cinnabar Red */
+}
+
+/* Automatic beautiful styling for H1, H2, H3, H4 headings */
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  font-family: var(--font-serif);
+  color: var(--color-saffron-400); /* Cinnabar Red */
+  font-weight: 500;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  border-left: 3px solid var(--color-saffron-400);
+  padding-left: 0.75rem;
+  text-align: left;
+}
+
+.article-content h1 { font-size: 1.6rem; }
+.article-content h2 { font-size: 1.4rem; }
+.article-content h3 { font-size: 1.25rem; }
+.article-content h4 { font-size: 1.15rem; }
+
+/* Strong bold sub-headlines or emphasis */
+.article-content strong {
+  color: #ffded7; /* Saffron light */
+  font-weight: 600;
+  font-family: var(--font-serif);
+}
+
+/* Beautiful Lists styling */
+.article-content ul, 
+.article-content ol {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.article-content ul li {
+  list-style-type: none;
+  position: relative;
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.article-content ul li::before {
+  content: "✦";
+  color: var(--color-saffron-400);
+  position: absolute;
+  left: -1.25rem;
+  top: 0.1rem;
+  font-size: 0.8rem;
+}
+
+.article-content ol li {
+  list-style-type: decimal;
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: left;
+}
+
+/* Blockquote Trích dẫn */
+.article-content blockquote {
+  background: rgba(201, 42, 35, 0.03);
+  border-left: 3px solid var(--color-saffron-400);
+  padding: 1.25rem 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  font-family: var(--font-serif);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 0 8px 8px 0;
+  text-align: justify;
+}
+
+/* Table styled automatically */
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  border: 1px solid rgba(201, 42, 35, 0.15);
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid rgba(201, 42, 35, 0.15);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.article-content th {
+  background-color: rgba(201, 42, 35, 0.05);
+  color: var(--color-saffron-400);
+  font-weight: 600;
+}
+
+.article-content tr:nth-child(even) {
+  background-color: rgba(251, 244, 227, 0.05);
+}
+

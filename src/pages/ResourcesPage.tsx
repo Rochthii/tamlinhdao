@@ -36,6 +36,12 @@ function parseVietnameseDate(dateStr: string): Date {
   }
 }
 
+// Helper to detect if a string contains HTML tags
+function isHtml(str: string): boolean {
+  if (!str) return false;
+  return /<[a-z][\s\S]*>/i.test(str);
+}
+
 // Inline article block renderer for high-quality publication layout
 function renderArticleBody(text: string, fontSizeClass: string) {
   if (!text) return null;
@@ -964,9 +970,16 @@ export default function ResourcesPage() {
 
                   {/* Body Content of article parsed elegantly */}
                   <article className="prose prose-invert max-w-none text-white/90">
-                    <div className="space-y-6">
-                      {renderArticleBody(currentArticle.content || '', mappedFontSizeClass)}
-                    </div>
+                    {isHtml(currentArticle.content || '') ? (
+                      <div 
+                        className={`article-content ${mappedFontSizeClass}`} 
+                        dangerouslySetInnerHTML={{ __html: currentArticle.content }} 
+                      />
+                    ) : (
+                      <div className="space-y-6">
+                        {renderArticleBody(currentArticle.content || '', mappedFontSizeClass)}
+                      </div>
+                    )}
                   </article>
 
                   {/* Interactive Action Footer block (Likes, save, share) */}

@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchCategories, createCategory, createArticleWithCategories, updateArticleWithCategories, uploadImageToSupabase } from '../lib/supabase';
-import { User, Calendar, Clock, Sparkles, Eye, Edit3, BookOpen, Bold, Italic, Underline, List, ListOrdered, Link, Image as ImageIcon, X } from 'lucide-react';
+import { 
+  User, Calendar, Clock, Sparkles, Eye, Edit3, BookOpen, 
+  Bold, Italic, Underline, List, ListOrdered, Link, Image as ImageIcon, X,
+  Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, AlignJustify, 
+  Quote, Minus, Undo, Redo, Table, Eraser, Code, Strikethrough
+} from 'lucide-react';
 
 export default function ArticleEditor({
   initial,
@@ -33,6 +38,9 @@ export default function ArticleEditor({
   // Editor view tab state
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
+  // Word-like rich text editor HTML source mode state
+  const [showHtmlSource, setShowHtmlSource] = useState(false);
+
   useEffect(() => {
     (async () => {
       try {
@@ -45,10 +53,71 @@ export default function ArticleEditor({
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'edit' && editorRef.current) {
+    if (activeTab === 'edit' && editorRef.current && !showHtmlSource) {
       editorRef.current.innerHTML = content || '';
     }
-  }, [activeTab, content]);
+  }, [activeTab, content, showHtmlSource]);
+
+  const toggleHtmlSource = () => {
+    if (!showHtmlSource) {
+      if (editorRef.current) {
+        setContent(editorRef.current.innerHTML);
+      }
+      setShowHtmlSource(true);
+    } else {
+      setShowHtmlSource(false);
+    }
+  };
+
+  const handleHeading = (heading: 'h1' | 'h2' | 'h3' | 'h4' | 'p') => {
+    if (heading === 'p') {
+      exec('formatBlock', '<p>');
+    } else {
+      exec('formatBlock', `<${heading}>`);
+    }
+  };
+
+  const handleAlignment = (align: 'left' | 'center' | 'right' | 'justify') => {
+    if (align === 'left') exec('justifyLeft');
+    if (align === 'center') exec('justifyCenter');
+    if (align === 'right') exec('justifyRight');
+    if (align === 'justify') exec('justifyFull');
+  };
+
+  const handleColor = (colorHex: string) => {
+    exec('foreColor', colorHex);
+  };
+
+  const handleInsertTable = () => {
+    const size = prompt('Nhập số dòng và số cột (ví dụ: 3x3):', '3x3');
+    if (!size) return;
+    const [rows, cols] = size.split('x').map(Number);
+    if (isNaN(rows) || isNaN(cols) || rows <= 0 || cols <= 0) {
+      alert('Định dạng không hợp lệ. Vui lòng nhập số dòng x số cột (ví dụ: 3x3).');
+      return;
+    }
+    
+    let tableHtml = '<table style="width:100%; border-collapse:collapse; margin:16px 0; border:1px solid rgba(201,42,35,0.2);">';
+    for (let r = 0; r < rows; r++) {
+      tableHtml += '<tr>';
+      for (let c = 0; c < cols; c++) {
+        const isHeader = r === 0;
+        const cellTag = isHeader ? 'th' : 'td';
+        const cellBg = isHeader ? 'background-color:rgba(201,42,35,0.05); font-weight:bold;' : '';
+        tableHtml += `<${cellTag} style="border:1px solid rgba(201,42,35,0.2); padding:10px; text-align:left; ${cellBg}">`;
+        tableHtml += isHeader ? `Tiêu đề ${c + 1}` : `Nội dung ô [${r + 1}, ${c + 1}]`;
+        tableHtml += `</${cellTag}>`;
+      }
+      tableHtml += '</tr>';
+    }
+    tableHtml += '</table><p><br></p>';
+    
+    if (showHtmlSource) {
+      setContent(prev => prev + tableHtml);
+    } else {
+      exec('insertHTML', tableHtml);
+    }
+  };
 
   const handleAddCategory = async () => {
     if (!newCatName.trim()) return;
@@ -211,7 +280,7 @@ export default function ArticleEditor({
         <div className="space-y-6">
           {/* Cover Image Upload Area */}
           <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold block">Ảnh đại diện bài viết (Hình chữ nhật nằm ngang)</label>
+            <label className="text-xs uppercase tracking-widest text-saffron-400 font-bold block mb-1.5">Ảnh đại diện bài viết (Hình chữ nhật nằm ngang)</label>
             <div className="flex flex-col sm:flex-row gap-4 items-center bg-dao-900/30 p-4 border border-saffron-400/10 rounded-lg text-white">
               {imageUrl ? (
                 <div className="relative w-full sm:w-48 h-28 rounded-lg overflow-hidden border border-saffron-400/20 shrink-0">
@@ -266,8 +335,8 @@ export default function ArticleEditor({
               />
 
               <div className="flex-1 space-y-2 w-full text-left">
-                <p className="text-[10px] text-white/40 italic">
-                  Hình ảnh đại diện sẽ được trưng bày tại Thư viện tư liệu. Hỗ trợ định dạng JPG, PNG, WEBP.
+                <p className="text-[10px] text-stone-500 italic">
+                  Hình ảnh đại diện sẽ được trưng bày tại Thư viện tư liệu. Hỗ trợ định dạng JPG, PNG, WEBP (Khuyên dùng).
                 </p>
                 <div className="relative">
                   <input
@@ -283,7 +352,7 @@ export default function ArticleEditor({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2 space-y-2">
-              <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold">Tiêu đề bài viết *</label>
+              <label className="text-xs uppercase tracking-widest text-saffron-400 font-bold block mb-1.5">Tiêu đề bài viết *</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
@@ -292,7 +361,7 @@ export default function ArticleEditor({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold">Danh xưng tác giả</label>
+              <label className="text-xs uppercase tracking-widest text-saffron-400 font-bold block mb-1.5">Danh xưng tác giả</label>
               <input
                 value={author}
                 onChange={e => setAuthor(e.target.value)}
@@ -303,7 +372,7 @@ export default function ArticleEditor({
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold">Tóm tắt ngắn (Trưng bày ở trang thư viện)</label>
+            <label className="text-xs uppercase tracking-widest text-saffron-400 font-bold block mb-1.5">Tóm tắt ngắn (Trưng bày ở trang thư viện)</label>
             <input
               value={excerpt}
               onChange={e => setExcerpt(e.target.value)}
@@ -313,64 +382,158 @@ export default function ArticleEditor({
           </div>
 
           {/* WYSIWYG Editor area */}
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold">Nội dung chi tiết (Soạn thảo văn bản)</label>
+          <div className="space-y-2 text-left">
+            <label className="text-xs uppercase tracking-widest text-saffron-400 font-bold block mb-1.5">Nội dung chi tiết (Soạn thảo văn bản)</label>
             
             {/* Formatting Toolbar */}
-            <div className="flex flex-wrap gap-1 p-2 bg-dao-900 border border-saffron-400/10 rounded-t-lg">
-              <button type="button" title="Chữ Đậm" onClick={() => exec('bold')} className="p-2 hover:bg-white/5 rounded text-white/80 hover:text-white transition-colors cursor-pointer"><Bold className="w-4 h-4" /></button>
-              <button type="button" title="Chữ Nghiêng" onClick={() => exec('italic')} className="p-2 hover:bg-white/5 rounded text-white/80 hover:text-white transition-colors cursor-pointer"><Italic className="w-4 h-4" /></button>
-              <button type="button" title="Gạch Chân" onClick={() => exec('underline')} className="p-2 hover:bg-white/5 rounded text-white/80 hover:text-white transition-colors cursor-pointer"><Underline className="w-4 h-4" /></button>
-              <div className="w-px h-6 bg-white/10 mx-2 self-center"></div>
-              <button type="button" title="Danh sách số" onClick={() => exec('insertOrderedList')} className="p-2 hover:bg-white/5 rounded text-white/80 hover:text-white transition-colors cursor-pointer"><ListOrdered className="w-4 h-4" /></button>
-              <button type="button" title="Danh sách chấm" onClick={() => exec('insertUnorderedList')} className="p-2 hover:bg-white/5 rounded text-white/80 hover:text-white transition-colors cursor-pointer"><List className="w-4 h-4" /></button>
-              <div className="w-px h-6 bg-white/10 mx-2 self-center"></div>
-              <button
-                type="button"
-                title="Chèn liên kết"
-                onClick={() => {
-                  const url = prompt('Nhập URL đường dẫn:');
-                  if (url) exec('createLink', url);
-                }}
-                className="p-2 hover:bg-white/5 rounded text-white/80 hover:text-white transition-colors cursor-pointer"
-              >
-                <Link className="w-4 h-4" />
-              </button>
+            <div className="flex flex-wrap gap-y-2 gap-x-1 p-2.5 bg-dao-900 border border-saffron-400/20 rounded-t-lg items-center shadow-sm select-none">
               
-              <button
-                type="button"
-                title="Chèn hình ảnh"
-                onClick={handleFilePick}
-                disabled={uploading}
-                className="p-2 hover:bg-white/5 rounded text-white/80 hover:text-white transition-colors cursor-pointer disabled:opacity-50"
-              >
-                <ImageIcon className="w-4 h-4" />
-              </button>
+              {/* Nhóm Thao Tác (Undo/Redo) */}
+              <div className="flex items-center gap-0.5 bg-white/5 p-1 rounded border border-saffron-400/5">
+                <button type="button" title="Hoàn tác (Undo)" onClick={() => exec('undo')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Undo className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Làm lại (Redo)" onClick={() => exec('redo')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Redo className="w-3.5 h-3.5" /></button>
+              </div>
+
+              <div className="w-px h-6 bg-saffron-400/10 mx-1"></div>
+
+              {/* Nhóm Định Dạng Phông & Tiêu Đề */}
+              <div className="flex items-center gap-0.5 bg-white/5 p-1 rounded border border-saffron-400/5">
+                <button type="button" title="Tiêu đề lớn (H1)" onClick={() => handleHeading('h1')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 font-serif font-bold text-xs cursor-pointer">H1</button>
+                <button type="button" title="Tiêu đề vừa (H2)" onClick={() => handleHeading('h2')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 font-serif font-bold text-xs cursor-pointer">H2</button>
+                <button type="button" title="Tiêu đề nhỏ (H3)" onClick={() => handleHeading('h3')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 font-serif font-bold text-xs cursor-pointer">H3</button>
+                <button type="button" title="Đoạn văn (P)" onClick={() => handleHeading('p')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 font-serif font-bold text-xs cursor-pointer">P</button>
+              </div>
+
+              <div className="w-px h-6 bg-saffron-400/10 mx-1"></div>
+
+              {/* Nhóm Kiểu Chữ (Bold, Italic, Underline, Strikethrough) */}
+              <div className="flex items-center gap-0.5 bg-white/5 p-1 rounded border border-saffron-400/5">
+                <button type="button" title="Chữ Đậm" onClick={() => exec('bold')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Bold className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Chữ Nghiêng" onClick={() => exec('italic')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Italic className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Gạch Chân" onClick={() => exec('underline')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Underline className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Gạch Ngang" onClick={() => exec('strikeThrough')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Strikethrough className="w-3.5 h-3.5" /></button>
+              </div>
+
+              <div className="w-px h-6 bg-saffron-400/10 mx-1"></div>
+
+              {/* Nhóm Căn Lề */}
+              <div className="flex items-center gap-0.5 bg-white/5 p-1 rounded border border-saffron-400/5">
+                <button type="button" title="Căn Trái" onClick={() => handleAlignment('left')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><AlignLeft className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Căn Giữa" onClick={() => handleAlignment('center')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><AlignCenter className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Căn Phải" onClick={() => handleAlignment('right')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><AlignRight className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Căn Đều (Báo chí)" onClick={() => handleAlignment('justify')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><AlignJustify className="w-3.5 h-3.5" /></button>
+              </div>
+
+              <div className="w-px h-6 bg-saffron-400/10 mx-1"></div>
+
+              {/* Nhóm Danh Sách & Khối Trích Dẫn */}
+              <div className="flex items-center gap-0.5 bg-white/5 p-1 rounded border border-saffron-400/5">
+                <button type="button" title="Danh sách số" onClick={() => exec('insertOrderedList')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><ListOrdered className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Danh sách chấm" onClick={() => exec('insertUnorderedList')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><List className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Khối Trích Dẫn" onClick={() => exec('formatBlock', '<blockquote>')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Quote className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Đường kẻ phân tách (Kẻ ngang)" onClick={() => exec('insertHorizontalRule')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Minus className="w-3.5 h-3.5" /></button>
+              </div>
+
+              <div className="w-px h-6 bg-saffron-400/10 mx-1"></div>
+
+              {/* Nhóm Đa Phương Tiện & Bảng Biểu */}
+              <div className="flex items-center gap-0.5 bg-white/5 p-1 rounded border border-saffron-400/5">
+                <button
+                  type="button"
+                  title="Chèn liên kết"
+                  onClick={() => {
+                    const url = prompt('Nhập URL đường dẫn:');
+                    if (url) exec('createLink', url);
+                  }}
+                  className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"
+                >
+                  <Link className="w-3.5 h-3.5" />
+                </button>
+                
+                <button
+                  type="button"
+                  title="Chèn hình ảnh"
+                  onClick={handleFilePick}
+                  disabled={uploading}
+                  className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <ImageIcon className="w-3.5 h-3.5" />
+                </button>
+                
+                <button
+                  type="button"
+                  title="Chèn bảng biểu Word"
+                  onClick={handleInsertTable}
+                  className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"
+                >
+                  <Table className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="w-px h-6 bg-saffron-400/10 mx-1"></div>
+
+              {/* Nhóm Màu Sắc Trực Quan (ForeColors) */}
+              <div className="flex items-center gap-1 bg-white/5 p-1.5 rounded border border-saffron-400/5">
+                <span className="text-[9px] text-stone-500 font-bold hidden xl:inline">Màu:</span>
+                <button type="button" title="Màu Chu Sa (Cinnabar Red)" onClick={() => handleColor('#c92a23')} className="w-3.5 h-3.5 rounded-full border border-black/10 cursor-pointer hover:scale-110 transition-transform bg-[#c92a23]" />
+                <button type="button" title="Màu Vàng Chỉ Dụ (Talisman)" onClick={() => handleColor('#eabb48')} className="w-3.5 h-3.5 rounded-full border border-black/10 cursor-pointer hover:scale-110 transition-transform bg-[#eabb48]" />
+                <button type="button" title="Màu Cam Ánh Nến (Candle)" onClick={() => handleColor('#f18d36')} className="w-3.5 h-3.5 rounded-full border border-black/10 cursor-pointer hover:scale-110 transition-transform bg-[#f18d36]" />
+                <button type="button" title="Màu Gỗ Đen Sậm" onClick={() => handleColor('#27140e')} className="w-3.5 h-3.5 rounded-full border border-black/10 cursor-pointer hover:scale-110 transition-transform bg-[#27140e]" />
+                <button type="button" title="Màu Đồng Cổ" onClick={() => handleColor('#806c44')} className="w-3.5 h-3.5 rounded-full border border-black/10 cursor-pointer hover:scale-110 transition-transform bg-[#806c44]" />
+              </div>
+
+              <div className="w-px h-6 bg-saffron-400/10 mx-1"></div>
+
+              {/* Nhóm Tiện Ích (Xóa định dạng & Mã nguồn) */}
+              <div className="flex items-center gap-0.5 bg-white/5 p-1 rounded border border-saffron-400/5 ml-auto">
+                <button type="button" title="Xóa định dạng" onClick={() => exec('removeFormat')} className="p-1.5 hover:bg-saffron-400/10 rounded text-stone-700 hover:text-saffron-400 transition-colors cursor-pointer"><Eraser className="w-3.5 h-3.5" /></button>
+                <button 
+                  type="button" 
+                  title={showHtmlSource ? "Chuyển sang Soạn thảo trực quan" : "Xem Mã nguồn HTML"} 
+                  onClick={toggleHtmlSource} 
+                  className={`p-1.5 rounded transition-all cursor-pointer ${showHtmlSource ? 'bg-saffron-400 text-dao-900 font-bold' : 'hover:bg-saffron-400/10 text-stone-700 hover:text-saffron-400'}`}
+                >
+                  <Code className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-              {uploading && <span className="text-[10px] text-saffron-400 self-center ml-2 animate-pulse">Đang tải ảnh lên...</span>}
             </div>
 
-            {/* Content editable editor div */}
-            <div
-              ref={editorRef as any}
-              contentEditable
-              data-placeholder="Nhập nội dung bài viết tâm linh của bạn ở đây..."
-              onInput={() => {
-                if (editorRef.current) {
-                  const html = editorRef.current.innerHTML;
-                  setContent(html);
-                  autoEstimateReadTime(html);
-                }
-              }}
-              className="min-h-[300px] p-4 bg-dao-900/40 border-x border-b border-saffron-400/10 rounded-b-lg text-white/90 placeholder-white/20 focus:outline-none focus:border-saffron-400/30 transition-all font-serif leading-relaxed text-justify overflow-y-auto outline-none"
-            />
-            <p className="text-[10px] text-white/30 italic">Lưu ý: Bạn hữu có thể dùng **chữ đậm** trong các tiêu đề phụ để tạo hiệu ứng thanh viền dọc tinh xảo.</p>
+            {/* Content editor display */}
+            {showHtmlSource ? (
+              <textarea
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  autoEstimateReadTime(e.target.value);
+                }}
+                className="w-full min-h-[350px] p-4 bg-dao-900/40 border-x border-b border-saffron-400/10 rounded-b-lg text-white placeholder-white/20 focus:outline-none focus:border-saffron-400/30 transition-all font-mono text-xs leading-relaxed overflow-y-auto outline-none resize-y"
+                placeholder="Nhập hoặc chỉnh sửa mã nguồn HTML tại đây..."
+              />
+            ) : (
+              <div
+                ref={editorRef as any}
+                contentEditable
+                data-placeholder="Nhập nội dung bài viết tâm linh của bạn ở đây..."
+                onInput={() => {
+                  if (editorRef.current) {
+                    const html = editorRef.current.innerHTML;
+                    setContent(html);
+                    autoEstimateReadTime(html);
+                  }
+                }}
+                className="min-h-[350px] p-4 bg-dao-900/40 border-x border-b border-saffron-400/10 rounded-b-lg text-white placeholder-white/20 focus:outline-none focus:border-saffron-400/30 transition-all font-serif leading-relaxed text-justify overflow-y-auto outline-none"
+              />
+            )}
+            
+            <p className="text-[10px] text-stone-500 italic mt-1.5">Lưu ý: Bạn hữu có thể dùng **chữ đậm** trong các tiêu đề phụ để tạo hiệu ứng thanh viền dọc tinh xảo.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left: Chuyên mục tag selector */}
-            <div className="space-y-3">
-              <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold block">Nhóm Chuyên Mục Bài Viết</label>
+            <div className="space-y-3 text-left">
+              <label className="text-xs uppercase tracking-widest text-saffron-400 font-bold block mb-1.5">Nhóm Chuyên Mục Bài Viết</label>
               <div className="flex gap-1.5 flex-wrap p-3 bg-dao-900/30 border border-saffron-400/10 rounded-lg min-h-[50px]">
                 {categories.map(c => {
                   const selected = selectedCats.includes(c.id);
@@ -389,7 +552,7 @@ export default function ArticleEditor({
                     </button>
                   );
                 })}
-                {categories.length === 0 && <span className="text-[10px] text-white/30 italic">Chưa có chuyên mục nào</span>}
+                {categories.length === 0 && <span className="text-[10px] text-stone-500 italic">Chưa có chuyên mục nào</span>}
               </div>
               <div className="flex gap-2">
                 <input
@@ -409,8 +572,8 @@ export default function ArticleEditor({
             </div>
 
             {/* Right: Settings and publishing */}
-            <div className="space-y-3">
-              <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold block">Cài Đặt Xuất Bản</label>
+            <div className="space-y-3 text-left">
+              <label className="text-xs uppercase tracking-widest text-saffron-400 font-bold block mb-1.5">Cài Đặt Xuất Bản</label>
               <div className="p-4 bg-dao-900/30 border border-saffron-400/10 rounded-lg space-y-4">
                 <div className="flex items-center gap-3">
                   <input
@@ -426,7 +589,7 @@ export default function ArticleEditor({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] text-white/50 uppercase tracking-widest block">Thời gian đọc ước tính</label>
+                  <label className="text-xs uppercase tracking-widest text-saffron-400/80 font-bold block mb-1">Thời gian đọc ước tính</label>
                   <div className="relative">
                     <input
                       value={readTime}

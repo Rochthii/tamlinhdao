@@ -141,16 +141,15 @@ h1, h2, h3, h4, h5, h6 {
   text-align: justify;
 }
 
-/* Automatic elegant Drop Cap for first paragraph of the article */
-.article-content p:first-of-type::first-letter {
+/* Elegant Lead Paragraph for the first paragraph of the article */
+.article-content > p:first-of-type {
   font-family: var(--font-serif);
-  font-size: 3rem;
-  font-weight: bold;
-  float: left;
-  line-height: 1;
-  margin-right: 0.75rem;
-  margin-top: 0.25rem;
-  color: var(--color-saffron-400); /* Cinnabar Red */
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #ffded7; /* Saffron light */
+  font-style: italic;
+  margin-bottom: 2rem;
+  text-align: justify;
 }
 
 /* Automatic beautiful styling for H1, H2, H3, H4 headings */

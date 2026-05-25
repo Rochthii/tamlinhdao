@@ -319,6 +319,28 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const formatViDate = (publishedAt: any, createdAt?: any) => {
+  const targetDate = publishedAt || createdAt;
+  if (!targetDate) return '12 Tháng 4, 2024';
+  try {
+    return new Date(targetDate).toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }).replace('tháng', 'Tháng');
+  } catch (e) {
+    return '12 Tháng 4, 2024';
+  }
+};
+
+const mapArticles = (arts: any[]): ArticleType[] => {
+  return arts.map(art => ({
+    ...art,
+    readTime: art.readTime || art.read_time || '5 phút đọc',
+    date: art.date || formatViDate(art.published_at, art.created_at)
+  }));
+};
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [articles, setArticles] = useState<ArticleType[]>(initialArticles);
   const [services, setServices] = useState<ServiceType[]>(initialServices);
@@ -332,7 +354,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (supabase) {
         try {
           const { data: arts } = await supabase.from('articles').select('*').order('published_at', { ascending: false });
-          if (arts) setArticles(arts as ArticleType[]);
+          if (arts) setArticles(mapArticles(arts));
 
           const { data: svcs } = await supabase.from('services').select('*').order('created_at', { ascending: false });
           if (svcs) setServices(svcs as ServiceType[]);
@@ -363,14 +385,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           excerpt: a.excerpt,
           content: a.content,
           author: a.author,
-          read_time: a.readTime,
+          read_time: a.readTime || (a as any).read_time,
           published: a.published ?? true,
           published_at: new Date(),
           image_url: a.image_url
         };
         const { data, error } = await supabase.from('articles').insert([payload]).select().single();
         if (error) throw error;
-        setArticles(prev => [{ ...(data as any), id: (data as any).id }, ...prev]);
+        setArticles(prev => [mapArticles([data])[0], ...prev]);
       } catch (err) {
         console.error('addArticle supabase error', err);
       }
@@ -388,12 +410,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           excerpt: a.excerpt,
           content: a.content,
           author: a.author,
-          read_time: a.readTime,
+          read_time: a.readTime || (a as any).read_time,
           image_url: a.image_url
         };
         const { data, error } = await supabase.from('articles').update(payload).eq('id', id).select().single();
         if (error) throw error;
-        setArticles(prev => prev.map(item => (item.id === id ? (data as any) : item)));
+        setArticles(prev => prev.map(item => (item.id === id ? mapArticles([data])[0] : item)));
       } catch (err) {
         console.error('updateArticle supabase error', err);
       }
@@ -592,7 +614,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (supabase) {
       try {
         const { data: arts } = await supabase.from('articles').select('*').order('published_at', { ascending: false });
-        if (arts) setArticles(arts as ArticleType[]);
+        if (arts) setArticles(mapArticles(arts));
 
         const { data: svcs } = await supabase.from('services').select('*').order('created_at', { ascending: false });
         if (svcs) setServices(svcs as ServiceType[]);

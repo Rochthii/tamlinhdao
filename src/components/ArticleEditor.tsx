@@ -214,7 +214,6 @@ export default function ArticleEditor({
       read_time: readTime,
       published,
       published_at: published ? new Date() : null,
-      date: dateStr,
       image_url: imageUrl.trim()
     };
 

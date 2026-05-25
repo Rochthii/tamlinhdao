@@ -969,7 +969,7 @@ export default function ResourcesPage() {
                   </div>
 
                   {/* Body Content of article parsed elegantly */}
-                  <article className="prose prose-invert max-w-none text-white/90">
+                  <article className="prose max-w-none text-white/90">
                     {isHtml(currentArticle.content || '') ? (
                       <div 
                         className={`article-content ${mappedFontSizeClass}`} 

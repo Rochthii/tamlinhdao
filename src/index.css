@@ -131,7 +131,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Premium dynamic formatting for rich-text articles (HTML output from Word/Editor) */
 .article-content {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-white);
   text-align: justify;
 }
 
@@ -139,6 +139,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.5rem;
   line-height: 1.8;
   text-align: justify;
+  color: var(--color-white);
 }
 
 /* Elegant Lead Paragraph for the first paragraph of the article */
@@ -146,7 +147,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
   font-size: 1.15rem;
   line-height: 1.8;
-  color: #ffded7; /* Saffron light */
+  color: #6e1c18; /* Elegant deep Cinnabar Red */
   font-style: italic;
   margin-bottom: 2rem;
   text-align: justify;
@@ -176,7 +177,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Strong bold sub-headlines or emphasis */
 .article-content strong {
-  color: #ffded7; /* Saffron light */
+  color: #8c221e; /* Deep Cinnabar Red */
   font-weight: 600;
   font-family: var(--font-serif);
 }
@@ -209,19 +210,19 @@ h1, h2, h3, h4, h5, h6 {
   list-style-type: decimal;
   margin-bottom: 0.75rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-white);
   text-align: left;
 }
 
 /* Blockquote Trích dẫn */
 .article-content blockquote {
-  background: rgba(201, 42, 35, 0.03);
+  background: rgba(201, 42, 35, 0.04);
   border-left: 3px solid var(--color-saffron-400);
   padding: 1.25rem 1.5rem;
   margin: 2rem 0;
   font-style: italic;
   font-family: var(--font-serif);
-  color: rgba(255, 255, 255, 0.9);
+  color: #4a2c20; /* Deep warm brown */
   border-radius: 0 8px 8px 0;
   text-align: justify;
 }
@@ -240,6 +241,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(201, 42, 35, 0.15);
   padding: 0.75rem;
   text-align: left;
+  color: var(--color-white);
 }
 
 .article-content th {

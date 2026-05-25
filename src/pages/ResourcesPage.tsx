@@ -224,15 +224,24 @@ export default function ResourcesPage() {
     return articles.find(a => a.id === selectedArticleId) || null;
   }, [articles, selectedArticleId]);
 
-  // Sync URL search queries with current article selection state
+  // Sync URL search queries with current article selection state & category pre-filter
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const idParam = searchParams.get('id');
+    const catParam = searchParams.get('category');
+    
     if (idParam) {
       setSelectedArticleId(idParam);
     } else {
       setSelectedArticleId(null);
     }
+    
+    if (catParam) {
+      setSelectedCategory(catParam);
+    } else {
+      setSelectedCategory('all');
+    }
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.search]);
 

@@ -7,6 +7,7 @@ import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { fetchCategories } from './lib/supabase';
 import ParticleBackground from './components/ParticleBackground';
 import Hero from './components/Hero';
 import AboutSummary from './components/AboutSummary';
@@ -62,6 +63,20 @@ export default function App() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isAdmin = location.pathname.startsWith('/admin');
+
+  // Load categories dynamically for the header dropdown
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const cats = await fetchCategories();
+        if (cats) setCategories(cats);
+      } catch (e) {
+        console.error('Lỗi tải danh mục ngoài Header:', e);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (!location.hash) return;
@@ -122,7 +137,25 @@ export default function App() {
             <Link to="/gioi-thieu" className={location.pathname === '/gioi-thieu' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Giới thiệu</Link>
           )}
           
-          <Link to="/tu-lieu" className={location.pathname === '/tu-lieu' ? "text-saffron-400 transition-colors" : "hover:text-saffron-400 transition-colors"}>Tư liệu</Link>
+          {/* Tư liệu Dropdown */}
+          <div className="relative group py-2">
+            <Link to="/tu-lieu" className={`hover:text-saffron-400 transition-colors flex items-center gap-1.5 ${location.pathname === '/tu-lieu' ? "text-saffron-400" : ""}`}>
+              Tư liệu
+              <ChevronDown className="w-3 h-3 text-saffron-400/70 group-hover:rotate-180 transition-transform duration-300" />
+            </Link>
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-[#7a1212]/95 border border-saffron-400/20 py-2 rounded-md shadow-2xl min-w-[200px] z-50 backdrop-blur-md">
+              <Link to="/tu-lieu" className="block px-5 py-2.5 hover:bg-[#69120c] text-[#ffffff] hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Tất cả tư liệu</Link>
+              {categories.map(cat => (
+                <Link 
+                  key={cat.id} 
+                  to={`/tu-lieu?category=${encodeURIComponent(cat.name)}`} 
+                  className="block px-5 py-2.5 hover:bg-[#69120c] text-[#ffffff] hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          </div>
           
           {/* Hỗ Trợ Tâm Linh Dropdown */}
           <div className="relative group py-2">
@@ -131,9 +164,9 @@ export default function App() {
               <ChevronDown className="w-3 h-3 text-saffron-400/70 group-hover:rotate-180 transition-transform duration-300" />
             </Link>
             <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-[#7a1212]/95 border border-saffron-400/20 py-2 rounded-md shadow-2xl min-w-[280px] z-50 backdrop-blur-md">
-              <Link to="/ho-tro#luan-van-menh" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Luận Vận Mệnh</Link>
-              <Link to="/ho-tro#tham-van-tam-linh" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Tham Vấn Tâm Linh</Link>
-              <Link to="/ho-tro#nghi-le" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors text-wrap leading-normal">Tư vấn và Hỗ trợ nghi lễ theo yêu cầu</Link>
+              <Link to="/ho-tro#luan-van-menh" className="block px-5 py-2.5 hover:bg-[#69120c] text-[#ffffff] hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Luận Vận Mệnh</Link>
+              <Link to="/ho-tro#tham-van-tam-linh" className="block px-5 py-2.5 hover:bg-[#69120c] text-[#ffffff] hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Tham Vấn Tâm Linh</Link>
+              <Link to="/ho-tro#nghi-le" className="block px-5 py-2.5 hover:bg-[#69120c] text-[#ffffff] hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors text-wrap leading-normal">Tư vấn và Hỗ trợ nghi lễ theo yêu cầu</Link>
             </div>
           </div>
           
@@ -144,8 +177,8 @@ export default function App() {
               <ChevronDown className="w-3 h-3 text-saffron-400/70 group-hover:rotate-180 transition-transform duration-300" />
             </Link>
             <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-[#7a1212]/95 border border-saffron-400/20 py-2 rounded-md shadow-2xl min-w-[240px] z-50 backdrop-blur-md">
-              <Link to="/gieo-duyen#loyal" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Khách hàng thân thuộc</Link>
-              <Link to="/gieo-duyen#newcomer" className="block px-5 py-2.5 hover:bg-[#69120c] text-white hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Gieo duyên người mới</Link>
+              <Link to="/gieo-duyen#loyal" className="block px-5 py-2.5 hover:bg-[#69120c] text-[#ffffff] hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Khách hàng thân thuộc</Link>
+              <Link to="/gieo-duyen#newcomer" className="block px-5 py-2.5 hover:bg-[#69120c] text-[#ffffff] hover:text-saffron-400 text-[10px] tracking-wider uppercase transition-colors">Gieo duyên người mới</Link>
             </div>
           </div>
           
@@ -262,19 +295,28 @@ export default function App() {
                   </Link>
                 )}
 
-                {/* Tư Liệu */}
-                <Link
-                  to="/tu-lieu"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`py-3 px-4 rounded-lg transition-all duration-300 border flex items-center justify-between ${
-                    location.pathname === '/tu-lieu'
-                      ? 'bg-saffron-400/10 text-saffron-400 border-saffron-400/30 font-bold'
-                      : 'bg-[#f4e8d1]/40 border-saffron-400/10 hover:border-saffron-400/30'
-                  }`}
-                >
-                  <span>Tư liệu</span>
-                  <span className="text-saffron-400">✦</span>
-                </Link>
+                {/* Tư Liệu Đa cấp */}
+                <div className="flex flex-col gap-1 rounded-lg border border-saffron-400/10 p-3.5 bg-[#f4e8d1]/30">
+                  <span className="text-[#27140e] font-serif font-bold text-xs tracking-wider px-1 pb-2 border-b border-saffron-400/10 uppercase flex items-center justify-between">
+                    Tư liệu đạo quán
+                    <ChevronDown className="w-3.5 h-3.5 text-saffron-400" />
+                  </span>
+                  <div className="flex flex-col pl-3 border-l border-saffron-400/20 gap-3 mt-3 pb-1">
+                    <Link to="/tu-lieu" onClick={() => setIsMobileMenuOpen(false)} className="text-[10px] tracking-widest text-[#27140e]/80 hover:text-saffron-400 transition-colors uppercase font-bold flex items-center justify-between">
+                      <span>✦ Tất cả tư liệu</span>
+                    </Link>
+                    {categories.map(cat => (
+                      <Link 
+                        key={cat.id}
+                        to={`/tu-lieu?category=${encodeURIComponent(cat.name)}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="text-[10px] tracking-widest text-[#27140e]/80 hover:text-saffron-400 transition-colors uppercase font-bold flex items-center justify-between"
+                      >
+                        <span>✦ {cat.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Hỗ Trợ Tâm Linh Đa cấp */}
                 <div className="flex flex-col gap-1 rounded-lg border border-saffron-400/10 p-3.5 bg-[#f4e8d1]/30">

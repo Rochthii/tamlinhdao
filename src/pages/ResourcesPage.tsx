@@ -7,7 +7,7 @@ import {
   Heart, Share2, CornerDownRight, Quote, Plus, CheckCircle, Scale 
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
-import { fetchComments, postComment, fetchArticleStats, incrementArticleStat } from '../lib/supabase';
+import { fetchComments, postComment, fetchArticleStats, incrementArticleStat, fetchCategories } from '../lib/supabase';
 import useSEO from '../hooks/useSEO';
 
 // Helper to convert Vietnamese human dates like "12 Tháng 4, 2024" to JS Date objects
@@ -173,14 +173,29 @@ export default function ResourcesPage() {
   const [commentText, setCommentText] = useState('');
   const [commentMood, setCommentMood] = useState('An yên ✦');
 
-  // Categories Map
-  const categoriesList = [
-    { key: 'all', label: 'Tất cả' },
-    { key: 'Đạo Giáo', label: 'Đạo Giáo' },
-    { key: 'Phật Pháp', label: 'Phật Pháp' },
-    { key: 'Cổ Học', label: 'Cổ Học' },
-    { key: 'Thiền', label: 'Thiền Định' }
-  ];
+  // Dynamic Categories from Supabase Storage / DB
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const cats = await fetchCategories();
+        if (cats) setDbCategories(cats);
+      } catch (e) {
+        console.error('Lỗi tải danh mục ngoài ResourcesPage:', e);
+      }
+    })();
+  }, []);
+
+  // Dynamic categories list synchronized with Supabase database for dynamic filtering
+  const categoriesList = useMemo(() => {
+    const defaultList = [{ key: 'all', label: 'Tất cả' }];
+    const dbList = dbCategories.map(c => ({
+      key: c.name,
+      label: c.name
+    }));
+    return [...defaultList, ...dbList];
+  }, [dbCategories]);
 
   // Dynamic list of unique authors from the context's articles
   const availableAuthors = useMemo(() => {

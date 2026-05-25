@@ -201,8 +201,13 @@ export default function ArticleEditor({
       year: 'numeric'
     }).replace('tháng', 'Tháng');
 
+    const firstCatId = selectedCats[0];
+    const firstCat = categories.find(c => c.id === firstCatId);
+    const categoryName = firstCat ? firstCat.name : 'Chưa phân loại';
+
     const payload: any = {
       title: title.trim(),
+      category: categoryName,
       excerpt: excerpt.trim(),
       content: html,
       author: author.trim() || 'CRT',
@@ -365,7 +370,7 @@ export default function ArticleEditor({
               <input
                 value={author}
                 onChange={e => setAuthor(e.target.value)}
-                placeholder="Chăm Rốch Thi / Thích Trí Đức..."
+                placeholder="Chăm Rốch Thi..."
                 className="w-full p-3 bg-dao-900 border border-saffron-400/20 focus:border-saffron-400/80 rounded-lg text-sm text-white placeholder-white/20 focus:outline-none transition-all focus:shadow-[0_0_15px_rgba(233,163,65,0.1)]"
               />
             </div>

@@ -287,7 +287,7 @@ const initialMembers = [
   }
 ];
 
-export type ArticleType = typeof initialArticles[0] & { published?: boolean; published_at?: any };
+export type ArticleType = typeof initialArticles[0] & { published?: boolean; published_at?: any; image_url?: string };
 export type ServiceType = typeof initialServices[0];
 export type GiftType = typeof initialGifts[0];
 export type TestimonialType = typeof initialTestimonials[0];
@@ -365,7 +365,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           author: a.author,
           read_time: a.readTime,
           published: a.published ?? true,
-          published_at: new Date()
+          published_at: new Date(),
+          image_url: a.image_url
         };
         const { data, error } = await supabase.from('articles').insert([payload]).select().single();
         if (error) throw error;
@@ -387,7 +388,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           excerpt: a.excerpt,
           content: a.content,
           author: a.author,
-          read_time: a.readTime
+          read_time: a.readTime,
+          image_url: a.image_url
         };
         const { data, error } = await supabase.from('articles').update(payload).eq('id', id).select().single();
         if (error) throw error;

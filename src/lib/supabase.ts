@@ -97,3 +97,27 @@ export async function updateArticleWithCategories(articleId: string, article: an
   }
   return art;
 }
+
+// Upload Image to Supabase Storage Helper
+export async function uploadImageToSupabase(file: File) {
+  if (!supabase) throw new Error('Cơ sở dữ liệu Supabase chưa được kết nối');
+  
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+  const filePath = `articles/${fileName}`;
+  
+  const { data, error } = await supabase.storage
+    .from('articles')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+    
+  if (error) throw error;
+  
+  const { data: { publicUrl } } = supabase.storage
+    .from('articles')
+    .getPublicUrl(filePath);
+    
+  return publicUrl;
+}

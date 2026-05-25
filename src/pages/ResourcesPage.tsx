@@ -789,9 +789,15 @@ export default function ResourcesPage() {
                         className="dao-panel hover:border-saffron-400/40 transition-all duration-300 relative overflow-hidden group flex flex-col cursor-pointer rounded-lg bg-dao-800/30 hover:transform hover:-translate-y-1"
                       >
                         {/* Graphical Header banner */}
-                        <div className="h-40 border-b border-saffron-400/10 relative overflow-hidden flex items-center justify-center bg-dao-900/70">
-                          <div className="absolute inset-0 opacity-10 group-hover:opacity-25 transition-opacity bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')]"></div>
-                          <BookOpen className="w-10 h-10 text-saffron-400/20 group-hover:text-saffron-400/30 transition-colors transform group-hover:scale-110 duration-500" strokeWidth={1} />
+                        <div className="h-48 border-b border-saffron-400/10 relative overflow-hidden flex items-center justify-center bg-dao-900/70 shrink-0">
+                          {article.image_url ? (
+                            <img src={article.image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <>
+                              <div className="absolute inset-0 opacity-10 group-hover:opacity-25 transition-opacity bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')]"></div>
+                              <BookOpen className="w-10 h-10 text-saffron-400/20 group-hover:text-saffron-400/30 transition-colors transform group-hover:scale-110 duration-500" strokeWidth={1} />
+                            </>
+                          )}
                           
                           {/* Saffron Category Pill Badge */}
                           <span className="absolute top-4 left-4 text-[9px] font-bold bg-dao-900 border border-saffron-400/20 text-saffron-400 uppercase tracking-widest px-2.5 py-1 rounded-full">
@@ -915,6 +921,16 @@ export default function ResourcesPage() {
                       </span>
                     </div>
                   </div>
+
+                  {currentArticle.image_url && (
+                    <div className="w-full h-64 md:h-[400px] rounded-xl overflow-hidden border border-saffron-400/10 shadow-lg relative my-6">
+                      <img 
+                        src={currentArticle.image_url} 
+                        alt={currentArticle.title} 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  )}
 
                   {/* Summary Callout Block to anchor the editorial reading */}
                   <div className="bg-dao-900/50 border-l-[3px] border-saffron-400 p-5 rounded-r-lg italic text-white/70 text-xs md:text-sm leading-relaxed font-light font-serif">

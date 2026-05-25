@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCategories, createCategory, createArticleWithCategories, updateArticleWithCategories } from '../lib/supabase';
-import { User, Calendar, Clock, Sparkles, Eye, Edit3, BookOpen, Bold, Italic, Underline, List, ListOrdered, Link, Image as ImageIcon } from 'lucide-react';
+import { fetchCategories, createCategory, createArticleWithCategories, updateArticleWithCategories, uploadImageToSupabase } from '../lib/supabase';
+import { User, Calendar, Clock, Sparkles, Eye, Edit3, BookOpen, Bold, Italic, Underline, List, ListOrdered, Link, Image as ImageIcon, X } from 'lucide-react';
 
 export default function ArticleEditor({
   initial,
@@ -24,6 +24,11 @@ export default function ArticleEditor({
   const editorRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
+  
+  // Cover Image States
+  const [imageUrl, setImageUrl] = useState(initial?.image_url || '');
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
   
   // Editor view tab state
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
@@ -79,34 +84,18 @@ export default function ArticleEditor({
     if (!f) return;
     setUploading(true);
     try {
-      const reader = new FileReader();
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => reject(new Error('Read error'));
-        reader.readAsDataURL(f);
-      });
-      const match = dataUrl.match(/^data:(.+);base64,(.*)$/);
-      if (!match) throw new Error('Unsupported file');
-      const contentType = match[1];
-      const base64 = match[2];
-      const resp = await fetch('/api/upload-image', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName: f.name, base64, contentType })
-      });
-      if (!resp.ok) throw new Error('Upload failed');
-      const { url } = await resp.json();
+      const url = await uploadImageToSupabase(f);
+      if (!url) throw new Error('Không thể khởi tạo đường dẫn ảnh công khai');
       
       if (editorRef.current) {
-        editorRef.current.innerHTML += `<p className="my-4"><img src="${url}" alt="" className="rounded border border-saffron-400/20 max-w-full h-auto mx-auto shadow-md" /></p>`;
+        editorRef.current.innerHTML += `<p class="my-4"><img src="${url}" alt="" class="rounded border border-saffron-400/20 max-w-full h-auto mx-auto shadow-md" /></p>`;
         const html = editorRef.current.innerHTML;
         setContent(html);
         autoEstimateReadTime(html);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Upload ảnh thất bại');
+      alert('Tải ảnh lên thất bại: ' + (err.message || 'Vui lòng kiểm tra dung lượng hoặc quyền lưu trữ'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -151,7 +140,8 @@ export default function ArticleEditor({
       read_time: readTime,
       published,
       published_at: published ? new Date() : null,
-      date: dateStr
+      date: dateStr,
+      image_url: imageUrl.trim()
     };
 
     try {
@@ -219,6 +209,78 @@ export default function ArticleEditor({
       {activeTab === 'edit' ? (
         /* --- SOẠN THẢO (EDIT MODE) --- */
         <div className="space-y-6">
+          {/* Cover Image Upload Area */}
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold block">Ảnh đại diện bài viết (Hình chữ nhật nằm ngang)</label>
+            <div className="flex flex-col sm:flex-row gap-4 items-center bg-dao-900/30 p-4 border border-saffron-400/10 rounded-lg text-white">
+              {imageUrl ? (
+                <div className="relative w-full sm:w-48 h-28 rounded-lg overflow-hidden border border-saffron-400/20 shrink-0">
+                  <img src={imageUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl('')}
+                    className="absolute top-1.5 right-1.5 p-1 bg-black/70 hover:bg-red-600 rounded-full text-white transition-colors cursor-pointer"
+                    title="Gỡ ảnh"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={uploadingCover}
+                  className="w-full sm:w-48 h-28 rounded-lg border border-dashed border-saffron-400/25 hover:border-saffron-400/60 bg-dao-900/50 flex flex-col items-center justify-center gap-1.5 text-white/40 hover:text-saffron-300 transition-all cursor-pointer shrink-0"
+                >
+                  {uploadingCover ? (
+                    <span className="text-[10px] animate-pulse">Đang tải lên...</span>
+                  ) : (
+                    <>
+                      <ImageIcon className="w-6 h-6 opacity-60" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-center">Tải ảnh đại diện</span>
+                    </>
+                  )}
+                </button>
+              )}
+              
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  setUploadingCover(true);
+                  try {
+                    const url = await uploadImageToSupabase(f);
+                    if (url) setImageUrl(url);
+                  } catch (err: any) {
+                    console.error(err);
+                    alert('Tải ảnh đại diện thất bại: ' + (err.message || 'Vui lòng kiểm tra quyền Storage'));
+                  } finally {
+                    setUploadingCover(false);
+                    if (coverInputRef.current) coverInputRef.current.value = '';
+                  }
+                }}
+                className="hidden"
+              />
+
+              <div className="flex-1 space-y-2 w-full text-left">
+                <p className="text-[10px] text-white/40 italic">
+                  Hình ảnh đại diện sẽ được trưng bày tại Thư viện tư liệu. Hỗ trợ định dạng JPG, PNG, WEBP.
+                </p>
+                <div className="relative">
+                  <input
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="Hoặc dán URL ảnh có sẵn..."
+                    className="w-full p-2.5 bg-dao-900 border border-saffron-400/20 focus:border-saffron-400 rounded-lg text-xs text-white placeholder-white/20 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2 space-y-2">
               <label className="text-[10px] uppercase tracking-widest text-[#fff1be]/60 font-semibold">Tiêu đề bài viết *</label>

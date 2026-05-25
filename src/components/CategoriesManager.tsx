@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchCategories } from '../lib/supabase';
+import { fetchCategories, createCategory, supabase } from '../lib/supabase';
 
 export default function CategoriesManager() {
   const [cats, setCats] = useState<any[]>([]);
@@ -11,15 +11,7 @@ export default function CategoriesManager() {
   const load = async () => {
     setLoading(true);
     try {
-      // fetch via client helper (anon) or fallback to admin API
-      try {
-        const data: any = await fetchCategories();
-        if (data) { setCats(data); setLoading(false); return; }
-      } catch (e) {}
-
-      const resp = await fetch('/api/admin-categories', { credentials: 'same-origin' });
-      if (!resp.ok) throw new Error('Failed');
-      const data = await resp.json();
+      const data: any = await fetchCategories();
       setCats(data || []);
     } catch (e) {
       console.error('load categories', e);
@@ -31,29 +23,55 @@ export default function CategoriesManager() {
   const create = async () => {
     if (!newName.trim()) return;
     try {
-      const resp = await fetch('/api/admin-categories', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName.trim() }) });
-      if (!resp.ok) throw new Error('Create failed');
+      const res = await createCategory(newName.trim());
+      if (!res) throw new Error('Create failed');
       setNewName('');
       await load();
-    } catch (e) { console.error(e); alert('Tạo thất bại'); }
+    } catch (e: any) { 
+      console.error(e); 
+      alert('Tạo thất bại: ' + (e.message || 'Lỗi không xác định')); 
+    }
   };
 
   const saveEdit = async (id: string) => {
     if (!editName.trim()) return;
+    if (!supabase) {
+      alert('Lỗi: Chưa kết nối cơ sở dữ liệu Supabase');
+      return;
+    }
     try {
-      const resp = await fetch('/api/admin-categories', { method: 'PATCH', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, updates: { name: editName.trim() } }) });
-      if (!resp.ok) throw new Error('Update failed');
+      const { error } = await supabase.from('categories').update({ 
+        name: editName.trim(), 
+        slug: editName.trim().toLowerCase().replace(/\s+/g, '-') 
+      }).eq('id', id);
+      if (error) throw error;
       setEditing(null); setEditName(''); await load();
-    } catch (e) { console.error(e); alert('Cập nhật thất bại'); }
+    } catch (e: any) { 
+      console.error(e); 
+      alert('Cập nhật thất bại: ' + (e.message || 'Lỗi không xác định')); 
+    }
   };
 
   const remove = async (id: string) => {
     if (!confirm('Xóa nhóm sẽ gỡ liên kết khỏi bài viết. Tiếp tục?')) return;
+    if (!supabase) {
+      alert('Lỗi: Chưa kết nối cơ sở dữ liệu Supabase');
+      return;
+    }
     try {
-      const resp = await fetch('/api/admin-categories', { method: 'DELETE', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-      if (!resp.ok) throw new Error('Delete failed');
+      // Xóa liên kết khóa ngoại trước
+      const { error: relError } = await supabase.from('article_categories').delete().eq('category_id', id);
+      if (relError) throw relError;
+
+      // Xóa chuyên mục sau
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) throw error;
+      
       await load();
-    } catch (e) { console.error(e); alert('Xóa thất bại'); }
+    } catch (e: any) { 
+      console.error(e); 
+      alert('Xóa thất bại: ' + (e.message || 'Lỗi không xác định')); 
+    }
   };
 
   return (

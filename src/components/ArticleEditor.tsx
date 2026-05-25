@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchCategories, createCategory } from '../lib/supabase';
+import { fetchCategories, createCategory, createArticleWithCategories, updateArticleWithCategories } from '../lib/supabase';
 import { User, Calendar, Clock, Sparkles, Eye, Edit3, BookOpen, Bold, Italic, Underline, List, ListOrdered, Link, Image as ImageIcon } from 'lucide-react';
 
 export default function ArticleEditor({
@@ -13,7 +13,7 @@ export default function ArticleEditor({
 }) {
   const [title, setTitle] = useState(initial?.title || '');
   const [excerpt, setExcerpt] = useState(initial?.excerpt || '');
-  const [author, setAuthor] = useState(initial?.author || 'Chăm Rốch Thi');
+  const [author, setAuthor] = useState(initial?.author || '');
   const [readTime, setReadTime] = useState(initial?.read_time || '5 phút đọc');
   const [content, setContent] = useState(initial?.content || '');
   const [published, setPublished] = useState(initial?.published ?? true);
@@ -155,33 +155,21 @@ export default function ArticleEditor({
     };
 
     try {
-      let resp;
+      let result;
       if (initial && initial.id) {
-        resp = await fetch('/api/admin-articles', {
-          method: 'PATCH',
-          credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: initial.id, article: payload, categoryIds: selectedCats })
-        });
+        result = await updateArticleWithCategories(initial.id, payload, selectedCats);
       } else {
-        resp = await fetch('/api/admin-articles', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ article: payload, categoryIds: selectedCats })
-        });
+        result = await createArticleWithCategories(payload, selectedCats);
       }
       
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        throw new Error(err?.error || 'Lưu thất bại');
+      if (!result) {
+        throw new Error('Lưu thất bại hoặc không kết nối được cơ sở dữ liệu');
       }
       
-      const result = await resp.json();
       onSaved(result);
     } catch (e: any) {
       console.error('save article error', e);
-      alert('Lưu bài thất bại: ' + e.message);
+      alert('Lưu bài thất bại: ' + (e.message || 'Lỗi không xác định'));
     } finally {
       setSaving(false);
     }

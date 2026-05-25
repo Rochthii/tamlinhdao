@@ -24,13 +24,28 @@ export default function Contact() {
     
     try {
       if (supabase) {
-        const { error } = await supabase.from('bookings').insert([{
+        // Thử chèn đầy đủ thông tin theo cấu trúc schema mới
+        let { error } = await supabase.from('bookings').insert([{
           name: formData.name,
           dob: formData.dob || '',
           phone: formData.phone,
           message: `[Dịch vụ mong muốn: ${formData.service}]\n\n${formData.message || ''}`,
           status: 'pending'
         }]);
+        
+        // Cơ chế tự động fallback thông minh: Nếu database thật của người dùng là bản cũ thiếu cột dob hoặc status
+        if (error && (error.message.includes('dob') || error.message.includes('status'))) {
+          console.warn('⚠️ Phát hiện database bookings thiếu cột dob hoặc status. Kích hoạt chế độ chèn dự phòng (fallback)...');
+          
+          const fallbackPayload = {
+            name: formData.name,
+            phone: formData.phone,
+            message: `[Dịch vụ mong muốn: ${formData.service}]\n[Năm sinh/Cung mệnh: ${formData.dob || 'Không rõ'}]\n\n${formData.message || ''}`
+          };
+          
+          const { error: fallbackError } = await supabase.from('bookings').insert([fallbackPayload]);
+          error = fallbackError;
+        }
         
         if (error) throw error;
         setIsSuccess(true);

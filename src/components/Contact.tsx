@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { MessageSquare, ArrowRight, CheckCircle2 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 export default function Contact() {
@@ -8,6 +9,46 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const booking = params.get('booking');
+    if (booking) {
+      let category = 'Đăng ký xem bài Tarot';
+      const bookingLower = booking.toLowerCase();
+      
+      const luanMenhKeywords = ['tử vi', 'bát tự', 'bản đồ sao', 'luận giải vận mệnh', 'mệnh lý'];
+      const nghiLeKeywords = ['cầu an', 'cầu siêu', 'phong thủy', 'giải bùa', 'phần âm', 'tài vận', 'công danh', 'quy y', 'nghi lễ', 'lễ khác'];
+      
+      const isLuanMenh = luanMenhKeywords.some(kw => bookingLower.includes(kw));
+      const isNghiLe = nghiLeKeywords.some(kw => bookingLower.includes(kw));
+      
+      if (isLuanMenh) {
+        category = 'Luận giải Vận mệnh (Bát Tự/Kinh Dịch)';
+      } else if (isNghiLe) {
+        category = 'Yêu cầu Nghi lễ (Cầu an/Gieo phước)';
+      } else if (bookingLower.includes('tarot') || bookingLower.includes('oracle') || bookingLower.includes('scrying') || bookingLower.includes('bài tây')) {
+        category = 'Đăng ký xem bài Tarot';
+      } else {
+        category = 'Tham vấn Tâm linh & Chữa lành';
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        service: category,
+        message: `Tôi khởi tâm muốn đăng ký dịch vụ: ${booking}.\nMong hữu duyên được Đạo Quán hỗ trợ sắp xếp.`
+      }));
+
+      // Scroll smoothly to contact block
+      const element = document.getElementById('contact');
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
+    }
+  }, [location.search]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));

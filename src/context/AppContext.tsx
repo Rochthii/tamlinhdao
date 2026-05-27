@@ -354,19 +354,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (supabase) {
         try {
           const { data: arts } = await supabase.from('articles').select('*').order('published_at', { ascending: false });
-          if (arts) setArticles(mapArticles(arts));
+          if (arts && arts.length > 0) setArticles(mapArticles(arts));
 
           const { data: svcs } = await supabase.from('services').select('*').order('created_at', { ascending: false });
-          if (svcs) setServices(svcs as ServiceType[]);
+          if (svcs && svcs.length > 0) setServices(svcs as ServiceType[]);
 
           const { data: gfs } = await supabase.from('gifts').select('*').order('created_at', { ascending: false });
-          if (gfs) setGifts(gfs as GiftType[]);
+          if (gfs && gfs.length > 0) setGifts(gfs as GiftType[]);
 
           const { data: tms } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
-          if (tms) setTestimonials(tms as TestimonialType[]);
+          if (tms && tms.length > 0) setTestimonials(tms as TestimonialType[]);
 
           const { data: mbs } = await supabase.from('members').select('*').order('created_at', { ascending: false });
-          if (mbs) setMembers(mbs as MemberType[]);
+          if (mbs && mbs.length > 0) setMembers(mbs as MemberType[]);
         } catch (err) {
           console.error('Error loading from Supabase:', err);
         }
@@ -614,19 +614,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (supabase) {
       try {
         const { data: arts } = await supabase.from('articles').select('*').order('published_at', { ascending: false });
-        if (arts) setArticles(mapArticles(arts));
+        if (arts && arts.length > 0) setArticles(mapArticles(arts));
 
         const { data: svcs } = await supabase.from('services').select('*').order('created_at', { ascending: false });
-        if (svcs) setServices(svcs as ServiceType[]);
+        if (svcs && svcs.length > 0) setServices(svcs as ServiceType[]);
 
         const { data: gfs } = await supabase.from('gifts').select('*').order('created_at', { ascending: false });
-        if (gfs) setGifts(gfs as GiftType[]);
+        if (gfs && gfs.length > 0) setGifts(gfs as GiftType[]);
 
         const { data: tms } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
-        if (tms) setTestimonials(tms as TestimonialType[]);
+        if (tms && tms.length > 0) setTestimonials(tms as TestimonialType[]);
 
         const { data: mbs } = await supabase.from('members').select('*').order('created_at', { ascending: false });
-        if (mbs) setMembers(mbs as MemberType[]);
+        if (mbs && mbs.length > 0) setMembers(mbs as MemberType[]);
       } catch (err) {
         console.error('Error refreshing data from Supabase:', err);
       }

@@ -134,8 +134,8 @@ const initialServices = [
     title: 'Luận Vận Mệnh',
     subtitle: 'Giải Mã Bản Đồ Phước Nghiệp',
     hanzi: '命 理', // Mệnh Lý
-    description: 'Dựa trên Tứ Trụ, Bát Tự và triết lý Kinh Dịch, việc luận giải giúp bạn thấu hiểu "vốn liếng" bản mệnh một cách tường minh. Chúng tôi đánh giá sự hưng suy của từng thời lỳ, giải đáp cụ thể những trăn trở về sự nghiệp, tài lộc, gia đạo. Thấu hiểu quy luật Âm Dương Ngũ Hành để thuận theo dòng chảy trần gian.',
-    features: ['Phân tích Bát Tự cá nhân', 'Lập quẻ Kinh Dịch hỏi sự', 'Định hướng cát hung đại vận'],
+    description: 'Dựa trên các bộ môn Cổ học Phương Đông và Tây phương như Tử Vi Khoa Học, Tứ Trụ Bát Tự và Bản Đồ Sao cá nhân, việc luận giải giúp bạn thấu hiểu "vốn liếng" bản mệnh một cách tường minh. Chúng tôi đánh giá sự hưng suy của từng thời kỳ, giải đáp cụ thể những trăn trở về sự nghiệp, tài lộc, gia đạo để bạn thuận theo dòng chảy trần gian.',
+    features: ['Luận giải Lá Số Tử Vi', 'Phân tích Bát Tự chi tiết', 'Thiết lập Bản Đồ Sao cá nhân'],
     color: 'text-saffron-400',
     borderColor: 'border-saffron-400/30',
     bgDecor: 'bg-saffron-400/5',
@@ -146,8 +146,8 @@ const initialServices = [
     title: 'Tham Vấn Tâm Linh',
     subtitle: 'Chữa Lành & Chuyển Hóa',
     hanzi: '心 靈', // Tâm Linh
-    description: 'Khi đứng trước ngã rẽ hay bế tắc nội tâm, bạn cần một điểm tựa sáng suốt. Bằng sự đối thoại từ bi dựa trên góc nhìn Nhân Quả và Phật Pháp Nhiệm Màu, chúng tôi sẽ cùng bạn gỡ bỏ những dính mắc, buông xả muộn phiền. Chỉ lối bằng tư duy Vô Vi, giúp bạn tự thân tìm lại sự tĩnh tại và cân bằng chân thực.',
-    features: ['Tháo gỡ bế tắc tâm lý', 'Phân tích nhân duyên sự việc', 'Hỗ trợ phương pháp tĩnh tâm'],
+    description: 'Khi đứng trước ngã rẽ hay bế tắc nội tâm, bạn cần một điểm tựa sáng suốt. Kết hợp các công cụ chiêm đoán như Tarot, Oracle, Kinh Dịch cùng các phiên Soi Âm, Soi Căn chuyên sâu, chúng tôi sẽ cùng bạn gỡ bỏ dính mắc nội tâm, thấu lý Nhân Quả để tự thân tìm lại sự tĩnh tại, cân bằng chân thực.',
+    features: ['Xem bài Tarot, Oracle & Scrying', 'Soi Âm, Soi Căn & Tham Vấn', 'Lập quẻ Kinh Dịch & Bát Môn'],
     color: 'text-jade-400',
     borderColor: 'border-jade-400/30',
     bgDecor: 'bg-jade-400/5',
@@ -158,8 +158,8 @@ const initialServices = [
     title: 'Tư Vấn & Hỗ Trợ Nghi Lễ Theo Yêu Cầu',
     subtitle: 'Cầu An & Gieo Phước',
     hanzi: '儀 礼', // Nghi Lễ
-    description: 'Một không gian thanh khiết là nền tảng của vượng khí. Tư vấn và hỗ trợ các nghi thức thanh tẩy trần khí tà uế cho nơi ở, nơi làm việc. Hướng dẫn thiết lập ban thờ trang nghiêm, khai quang điểm nhãn vật phẩm, truyền thụ cách thức khấn nguyện sao cho linh ứng để tự gia chủ chư cát tị hung, nạp đầy phước đức.',
-    features: ['Thanh tẩy không gian sống', 'Thiết lập ban thờ chuẩn mực', 'Hướng dẫn nghi thức cầu bình an'],
+    description: 'Thiết lập ban thờ trang nghiêm và tư vấn các nghi thức tâm linh, khóa lễ cầu an gia đạo, cầu siêu giải nghiệp. Hỗ trợ khảo sát phong thủy nhà ở, giải bùa chú tiêu trừ trần khí uế tà, xử lý vấn đề liên quan phần âm và hướng dẫn quy y tu tập Phật pháp để tự gia chủ chư cát tị hung, đắp bồi phước báu.',
+    features: ['Lễ Cầu An, Cầu Siêu gia đạo', 'Tư vấn Phong Thủy & Giải Bùa', 'Hóa giải vấn đề Phần Âm'],
     color: 'text-rust-900',
     borderColor: 'border-rust-900/30',
     bgDecor: 'bg-rust-900/5',
